@@ -1,0 +1,74 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+    </properties>
+
+  <groupId>com.hadoop.fourmc</groupId>
+  <artifactId>hadoop-4mc</artifactId>
+  <version>1.0-SNAPSHOT</version>
+  <packaging>jar</packaging>
+
+   <name>4mc</name>
+  <url>https://github.com/carlomedas/4mc</url>
+  <description>
+  4mc - Four More Compression, LZ4 power unleashed.
+  </description>
+
+  <licenses>
+    <license>
+      <name>BSD</name>
+      <url>http://opensource.org/licenses/BSD-2-Clause</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+
+  <organization>
+    <name>Carlo Medas</name>
+    <url>-</url>
+  </organization>
+
+  <developers>
+    <developer>
+      <id>carlo</id>
+      <name>Carlo Medas</name>
+    </developer>
+  </developers>
+ 
+ 
+    <dependencies>
+
+      <!-- utils -->
+      <dependency>
+        <groupId>commons-lang</groupId>
+        <artifactId>commons-lang</artifactId>
+        <version>2.4</version>
+      </dependency>
+        <dependency>
+          <groupId>commons-logging</groupId>
+          <artifactId>commons-logging</artifactId>
+          <version>1.1.1</version>
+        </dependency>
+
+      <!-- hadoop -->
+      <dependency>
+        <groupId>org.apache.hadoop</groupId>
+        <artifactId>hadoop-client</artifactId>
+        <version>1.1.2</version>
+        <scope>provided</scope>
+      </dependency>
+
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>3.1</version>
+        </dependency>
+
+    </dependencies>
+
+</project>
+

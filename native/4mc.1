@@ -1,0 +1,65 @@
+\"
+\" 4mc.1: This is a manual page for '4mc' program. This file is part of the
+\" 4mc <https://github.com/carlomedas/4mc> project.
+\"
+
+\" No hyphenation
+.hy 0
+.nr HY 0
+
+.TH 4mc "1" "2014-09-16" "4mc" "User Commands"
+.SH NAME
+\fB4mc\fR - 4 More Compression - \fBLZ4\fR compression power unleashed
+
+.SH SYNOPSIS
+.TP 5
+\fB4mc\fR [\fBOPTIONS\fR] [-|INPUT-FILE] <OUTPUT-FILE>
+
+.SH DESCRIPTION
+.PP
+\fB4mc\fR (4 More Compression) is a compression file format which leverages the power of \fBLZ4\fR algorithm. It has been designed to add more features to existing big data solutions like HADOOP/ElephantBird: LZ4 is fastest compression/decompression but not only! LZ4 can be tuned to have a seamless tradeoff between CPU time and compression ratio:
+ (1) Fast Compression: default one reaching up to 500 MB/s (LZ4 fast)
+ (2) Medium Compression: half speed of fast mode, +13% ratio (LZ4 MC)
+ (3) High Compression: 5x slower than fast, +25% ratio (LZ4 HC lvl 4)
+ (4) Ultra Compression: 13x slower than fast, +30% ratio (LZ4 HC lvl 8) 
+   
+\fB4mc\fR supports following options
+
+.SH OPTIONS
+.TP
+.B \-1
+ fast compression (default)
+.TP
+.B \-2
+ medium compression
+.TP
+.B \-3
+ high compression
+.TP
+.B \-4
+ ultra compression
+.TP
+.B \-d
+ decompression
+.TP
+.B \-f
+ overwrite output without prompting
+.TP
+.B \-h/\-H
+ display help/long help and exit
+.TP
+.B \-V
+ display Version number and exit
+.TP
+.B \-v
+ verbose mode
+.TP
+.B \-q
+ quite mode
+.TP
+
+.SH BUGS
+Report bugs at:- https://github.com/carlomedas/4mc
+
+.SH AUTHOR
+4mc: Carlo Medas - LZ4: Yann Collet

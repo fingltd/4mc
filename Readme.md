@@ -8,9 +8,11 @@ The 4MC (4 More Compression) is a library for hadoop providing a new compression
 * Hadoop/EB: hadoop-lzo solution needs external index file to be able to split and process in parallel the big files, leveraging local mappers. 4mc format has been designed for big data purpose, thus the block index is internal, there is no need for any external file or pre processing of input data: any 4mc file is ready for parallel processing.
 
 ## License
+
 [BSD 2-Clause License]((http://www.opensource.org/licenses/bsd-license.php).
 
 ## Compression speed and levels
+
 4mc comes with 4 compression levels, all of them leveraging the LZ4 standard library. Both 4mc command line tool and Java HADOOP classes do provide codecs for these 4 levels.
 1. Fast Compression: default one reaching up to 500 MB/s (LZ4 fast)
 1. Medium Compression: half speed of fast mode, +13% ratio (LZ4 MC)
@@ -28,6 +30,7 @@ Bechmark with silesia on Linux CentOS 6.4 64bit - HP DL 380P Intel(R) Xeon(R) CP
 Please note that 4mc compression codecs can be also used in any stage of the M/R as compression codecs.
 
 ## Build
+
 * Native: 4mc command line tool and hadoop-4mc native library for JNI codecs
   Makefile is provided for unix/linux; also cmake can be used (still needs refinement for Windows).
 
@@ -35,10 +38,12 @@ Please note that 4mc compression codecs can be also used in any stage of the M/R
 * Java Native: see above, make sure JAVA_HOME is set.
 
 ## Java examples
+
 In java examples folder you can find 2 examples:
 1. text/TestTextInput.java : this example is a perfect skeleton to start working with 4mc files on your text files
 1. elephant-bird/FourMcEbProtoInputFormat.java : this adapter bridges EB frameworking letting you read 4mc files containing binary protobuf objects of your own type
 
 ## How To Contribute
+
 This is the very first version of the library. Bug fixes, features, and documentation improvements are welcome!
 

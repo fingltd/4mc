@@ -9,15 +9,15 @@ The 4MC (4 More Compression) is a library for hadoop providing a new compression
 
 ## License
 
-[BSD 2-Clause License]((http://www.opensource.org/licenses/bsd-license.php).
+BSD 2-Clause License - http://www.opensource.org/licenses/bsd-license.php
 
 ## Compression speed and levels
 
 4mc comes with 4 compression levels, all of them leveraging the LZ4 standard library. Both 4mc command line tool and Java HADOOP classes do provide codecs for these 4 levels.
-1. Fast Compression: default one reaching up to 500 MB/s (LZ4 fast)
-1. Medium Compression: half speed of fast mode, +13% ratio (LZ4 MC)
-1. High Compression: 5x slower than fast, +25% ratio (LZ4 HC lvl 4)
-1. Ultra Compression: 13x slower than fast, +30% ratio (LZ4 HC lvl 8) 
+* Fast Compression: default one reaching up to 500 MB/s (LZ4 fast)
+* Medium Compression: half speed of fast mode, +13% ratio (LZ4 MC)
+* High Compression: 5x slower than fast, +25% ratio (LZ4 HC lvl 4)
+* Ultra Compression: 13x slower than fast, +30% ratio (LZ4 HC lvl 8) 
 
 Bechmark with silesia on Linux CentOS 6.4 64bit - HP DL 380P Intel(R) Xeon(R) CPU E5-2697 v2 @ 2.70GHz
 ```
@@ -40,8 +40,8 @@ Please note that 4mc compression codecs can be also used in any stage of the M/R
 ## Java examples
 
 In java examples folder you can find 2 examples:
-1. text/TestTextInput.java : this example is a perfect skeleton to start working with 4mc files on your text files
-1. elephant-bird/FourMcEbProtoInputFormat.java : this adapter bridges EB frameworking letting you read 4mc files containing binary protobuf objects of your own type
+* text/TestTextInput.java : this example is a perfect skeleton to start working with 4mc files on your text files
+* elephant-bird/FourMcEbProtoInputFormat.java : this adapter bridges EB frameworking letting you read 4mc files containing binary protobuf objects of your own type
 
 ## How To Contribute
 

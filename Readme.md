@@ -47,3 +47,9 @@ In java examples folder you can find 2 examples:
 
 This is the very first version of the library. Bug fixes, features, and documentation improvements are welcome!
 
+## Contributors
+
+Major contributors are listed below.
+
+* Carlo Medas - author of the library
+* Yann Collett - mentor and author of LZ4 compression library

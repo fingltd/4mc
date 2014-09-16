@@ -2,7 +2,7 @@
 
 ## About
 
-The 4MC (4 More Compression) is a library for hadoop providing a new compression file format (4mc) which lets you leverage the power of LZ4 algorithm. It's been designed to add more features to existing big data solutions like HADOOP/ElephantBird which are currently mainly based on LZO, addressing the following major points:
+The 4MC (4 More Compression) is a library for hadoop providing a new **splittable compressed file format** (4mc) which lets you leverage the power of LZ4 algorithm. It's been designed to add more features to existing big data solutions like HADOOP/ElephantBird which are currently mainly based on LZO, addressing the following major points:
 * **Licensing**: LZO is GPL, while LZ4 and 4mc are BSD!
 * **Performances**: LZ4 is world's fastest compression but not only! It can achieve seamlessly much higher compression ratios by using medium/high codecs, thus going very near to GZIP ratios, at the price of compression CPU time only, since decompressors are simply going to speed up even more. 
 * **Hadoop/EB**: hadoop-lzo solution needs external index file to be able to split and process in parallel the big files, leveraging local mappers. 4mc format has been designed for big data purpose, thus the block index is internal, there is no need for any external file or pre processing of input data: any 4mc file is ready for parallel processing.
@@ -39,6 +39,9 @@ Please note that 4mc compression codecs can be also used in any stage of the M/R
 ## Releases and change history
 4mc 1.0.0 - https://github.com/carlomedas/4mc/releases
 Very first version of 4mc (attached artifacts contain jar and 4mc.exe for Windows, 4mc CLI and JNI better to compile for your own platform).
+
+Hadoop-1.x : working good.
+Hadoop-2.x : test in progress.
 
 ## Build
 

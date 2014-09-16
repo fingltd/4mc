@@ -1,5 +1,6 @@
 import com.google.protobuf.Message;
 import com.hadoop.mapreduce.FourMcInputFormat;
+import com.twitter.elephantbird.util.HadoopCompat;
 import com.twitter.elephantbird.mapreduce.input.LzoProtobufBlockRecordReader;
 import com.twitter.elephantbird.mapreduce.io.BinaryWritable;
 import com.twitter.elephantbird.util.HadoopUtils;
@@ -35,7 +36,7 @@ public class FourMcEbProtoInputFormat<M extends Message> extends FourMcInputForm
 
     public static void setInputFormatClass(Class<?> clazz, Job job) {
         job.setInputFormatClass(FourMcEbProtoInputFormat.class);
-        setClassConf(clazz, job.getConfiguration());
+        setClassConf(clazz, HadoopCompat.getConfiguration(job));
     }
 
     public FourMcEbProtoInputFormat() {
@@ -47,7 +48,7 @@ public class FourMcEbProtoInputFormat<M extends Message> extends FourMcInputForm
 
     @Override
     public RecordReader<LongWritable, BinaryWritable<M>> createRecordReader(InputSplit split, TaskAttemptContext taskAttempt) {
-        Configuration conf = taskAttempt.getConfiguration();
+        Configuration conf = HadoopCompat.getConfiguration(taskAttempt);
         if (typeRef == null) {
             setTypeRef(conf);
         }

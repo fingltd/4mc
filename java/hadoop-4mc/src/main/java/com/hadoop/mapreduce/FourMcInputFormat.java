@@ -35,6 +35,7 @@ package com.hadoop.mapreduce;
 
 import com.hadoop.compression.fourmc.FourMcBlockIndex;
 import com.hadoop.compression.fourmc.FourMcInputFormatUtil;
+import com.hadoop.compression.fourmc.util.HadoopUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
@@ -90,7 +91,7 @@ public abstract class FourMcInputFormat<K, V> extends FileInputFormat<K, V> {
     protected List<FileStatus> listStatus(JobContext job) throws IOException {
         List<FileStatus> files = super.listStatus(job);
         List<FileStatus> results = new ArrayList<FileStatus>();
-        Configuration conf = job.getConfiguration();
+        Configuration conf = HadoopUtils.getConfiguration(job);
         boolean recursive = conf.getBoolean("mapred.input.dir.recursive", false);
         Iterator<FileStatus> it = files.iterator();
         while (it.hasNext()) {
@@ -124,7 +125,7 @@ public abstract class FourMcInputFormat<K, V> extends FileInputFormat<K, V> {
 
     @Override
     public List<InputSplit> getSplits(JobContext job) throws IOException {
-        Configuration conf = job.getConfiguration();
+        Configuration conf = HadoopUtils.getConfiguration(job);
 
         List<InputSplit> defaultSplits = super.getSplits(job);
         List<InputSplit> result = new ArrayList<InputSplit>();

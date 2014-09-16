@@ -33,6 +33,7 @@
 **/
 package com.hadoop.mapreduce;
 
+import com.hadoop.compression.fourmc.util.HadoopUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -115,7 +116,7 @@ public class FourMcLineRecordReader extends RecordReader<LongWritable, Text> {
         start = split.getStart();
         end = start + split.getLength();
         final Path file = split.getPath();
-        Configuration job = context.getConfiguration();
+        Configuration job = HadoopUtils.getConfiguration(context);
         maxLineLen = job.getInt(MAX_LINE_LEN_CONF, Integer.MAX_VALUE);
 
         FileSystem fs = file.getFileSystem(job);

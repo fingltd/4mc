@@ -14,17 +14,17 @@ BSD 2-Clause License - http://www.opensource.org/licenses/bsd-license.php
 ## 4MC package content
 
 4MC is composed by the following items, included in source code repository:
-* 4mc - command line tool for compression/decompression of your files - written in C, working on Linux/MacOS/Windows
-* hadoop-4mc - java library to be used with hadoop to leverage 4mc format and LZ4 codecs (needs JNI below)
-* hadoop-4mc native - JNI bindings leveraging LZ4 compression/decompression
+* **4mc** - command line tool for compression/decompression of your files - written in C, working on Linux/MacOS/Windows
+* **hadoop-4mc** - java library to be used with hadoop to leverage 4mc format and LZ4 codecs (needs JNI below)
+* **hadoop-4mc lib** native - JNI bindings leveraging LZ4 compression/decompression
 
 ## Compression speed and levels
 
 4mc comes with 4 compression levels, all of them leveraging the LZ4 standard library. Both 4mc command line tool and Java HADOOP classes do provide codecs for these 4 levels.
-* Fast Compression: default one reaching up to 500 MB/s (LZ4 fast)
-* Medium Compression: half speed of fast mode, +13% ratio (LZ4 MC)
-* High Compression: 5x slower than fast, +25% ratio (LZ4 HC lvl 4)
-* Ultra Compression: 13x slower than fast, +30% ratio (LZ4 HC lvl 8) 
+* **Fast** Compression: default one reaching up to 500 MB/s (LZ4 fast)
+* **Medium** Compression: half speed of fast mode, +13% ratio (LZ4 MC)
+* **High** Compression: 5x slower than fast, +25% ratio (LZ4 HC lvl 4)
+* **Ultra** Compression: 13x slower than fast, +30% ratio (LZ4 HC lvl 8) 
 
 Bechmark with silesia on Linux CentOS 6.4 64bit - HP DL 380P Intel(R) Xeon(R) CPU E5-2697 v2 @ 2.70GHz
 ```
@@ -38,17 +38,17 @@ Please note that 4mc compression codecs can be also used in any stage of the M/R
 
 ## Build
 
-* Native: 4mc command line tool and hadoop-4mc native library for JNI codecs
+* **Native:** 4mc command line tool and hadoop-4mc native library for JNI codecs
   Makefile is provided for unix/linux; also cmake can be used (still needs refinement for Windows).
 
-* Java: hadoop-4mc library for hadoop can be built with maven, using provided pom.
-* Java Native: see above, make sure JAVA_HOME is set.
+* **Java:** hadoop-4mc library for hadoop can be built with maven, using provided pom.
+* **Java Native:** see above, make sure JAVA_HOME is set.
 
 ## Java examples
 
 In java examples folder you can find 2 examples:
-* text/TestTextInput.java : this example is a perfect skeleton to start working with 4mc files on your text files
-* elephant-bird/FourMcEbProtoInputFormat.java : this adapter bridges EB frameworking letting you read 4mc files containing binary protobuf objects of your own type
+* **text/TestTextInput.java** : this example is a perfect skeleton to start working with 4mc files on your text files
+* **elephant-bird/FourMcEbProtoInputFormat.java** : this adapter bridges EB frameworking letting you read 4mc files containing binary protobuf objects of your own type
 
 ## How To Contribute
 
@@ -58,5 +58,5 @@ This is the very first version of the library. Bug fixes, features, and document
 
 Major contributors are listed below.
 
-* Carlo Medas - author of the mc4 format and library
-* Yann Collett - mentor, author of LZ4 compression library
+* Carlo Medas - *author of the mc4 format and library*
+* Yann Collett - *mentor, author of LZ4 compression library*

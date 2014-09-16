@@ -36,6 +36,10 @@ Bechmark with silesia on Linux CentOS 6.4 64bit - HP DL 380P Intel(R) Xeon(R) CP
 ```
 Please note that 4mc compression codecs can be also used in any stage of the M/R as compression codecs.
 
+## Releases and change history
+4mc 1.0.0 - https://github.com/carlomedas/4mc/releases
+Very first version of 4mc (attached artifacts contain jar and 4mc.exe for Windows, 4mc CLI and JNI better to compile for your own platform).
+
 ## Build
 
 * **Native:** 4mc command line tool and hadoop-4mc native library for JNI codecs

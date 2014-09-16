@@ -11,6 +11,13 @@ The 4MC (4 More Compression) is a library for hadoop providing a new compression
 
 BSD 2-Clause License - http://www.opensource.org/licenses/bsd-license.php
 
+## 4MC package content
+
+4MC is composed by the following items, included in source code repository:
+* 4mc - command line tool for compression/decompression of your files - written in C, working on Linux/MacOS/Windows
+* hadoop-4mc - java library to be used with hadoop to leverage 4mc format and LZ4 codecs (needs JNI below)
+* hadoop-4mc native - JNI bindings leveraging LZ4 compression/decompression
+
 ## Compression speed and levels
 
 4mc comes with 4 compression levels, all of them leveraging the LZ4 standard library. Both 4mc command line tool and Java HADOOP classes do provide codecs for these 4 levels.
@@ -51,5 +58,5 @@ This is the very first version of the library. Bug fixes, features, and document
 
 Major contributors are listed below.
 
-* Carlo Medas - author of the library
-* Yann Collett - mentor and author of LZ4 compression library
+* Carlo Medas - author of the mc4 format and library
+* Yann Collett - mentor, author of LZ4 compression library

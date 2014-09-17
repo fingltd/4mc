@@ -43,6 +43,7 @@
 #include "lz4/lz4mc.h"
 #include "lz4/xxhash.h"
 
+#define EXCEPTION_STRING_MAXLEN 256
 
 static jfieldID Lz4Decompressor_finished;
 static jfieldID Lz4Decompressor_compressedDirectBuf;
@@ -67,6 +68,8 @@ JNIEXPORT jint JNICALL
 Java_com_hadoop_compression_fourmc_Lz4Decompressor_decompressBytesDirect(
 	JNIEnv *env, jobject this) {
 
+	int outputSize;
+
 	// Get members of LZ4Decompressor
 	jobject compressed_direct_buf = (*env)->GetObjectField(env, this, Lz4Decompressor_compressedDirectBuf);
 	unsigned int compressed_direct_buf_len = (*env)->GetIntField(env, this, Lz4Decompressor_compressedDirectBufLen);
@@ -75,26 +78,21 @@ Java_com_hadoop_compression_fourmc_Lz4Decompressor_decompressBytesDirect(
 	unsigned int uncompressed_direct_buf_len = (*env)->GetIntField(env, this, Lz4Decompressor_directBufferSize);
 
 	char* uncompressed_bytes = (*env)->GetDirectBufferAddress(env, uncompressed_direct_buf);
-    
- 	if (uncompressed_bytes == 0) {
+    const char* compressed_bytes = (*env)->GetDirectBufferAddress(env, compressed_direct_buf);
+
+ 	if (uncompressed_bytes == 0 || compressed_bytes == 0) {
  	    return (jint)0;
 	}
 	
-	const char* compressed_bytes = (*env)->GetDirectBufferAddress(env, compressed_direct_buf);
-
-    if (compressed_bytes == 0) {
-		return (jint)0;
-	}
-	
 	// safe decompress
-    int outputSize = LZ4_decompress_safe(compressed_bytes, uncompressed_bytes, compressed_direct_buf_len, uncompressed_direct_buf_len);
+    outputSize = LZ4_decompress_safe(compressed_bytes, uncompressed_bytes, compressed_direct_buf_len, uncompressed_direct_buf_len);
 
     if (outputSize >= 0) {
         (*env)->SetIntField(env, this, Lz4Decompressor_compressedDirectBufLen, 0);
     } else {
-        const int msg_len = 1024;
-        char exception_msg[msg_len];
-        snprintf(exception_msg, msg_len, "LZ4_decompress_safe returned: %d", outputSize);
+        char exception_msg[EXCEPTION_STRING_MAXLEN];
+       	PORTABLE_SNPRINTF_START(exception_msg, EXCEPTION_STRING_MAXLEN, "LZ4_decompress_safe returned: %d", outputSize);
+		PORTABLE_SNPRINTF_END(exception_msg, EXCEPTION_STRING_MAXLEN);
         THROW(env, "java/lang/InternalError", exception_msg);
   }
   

@@ -44,6 +44,8 @@
 #include "lz4/xxhash.h"
 
 
+#define EXCEPTION_STRING_MAXLEN 256
+
 static jfieldID Lz4Compressor_finish;
 static jfieldID Lz4Compressor_finished;
 static jfieldID Lz4Compressor_uncompressedDirectBuf;
@@ -71,6 +73,7 @@ JNIEXPORT jint JNICALL
 Java_com_hadoop_compression_fourmc_Lz4Compressor_compressBytesDirect(
   JNIEnv *env, jobject this)
 {
+	int r;
 
 	jobject uncompressed_direct_buf = (*env)->GetObjectField(env, this, Lz4Compressor_uncompressedDirectBuf);
 	unsigned int uncompressed_direct_buf_len = (*env)->GetIntField(env, this, Lz4Compressor_uncompressedDirectBufLen);
@@ -78,24 +81,21 @@ Java_com_hadoop_compression_fourmc_Lz4Compressor_compressBytesDirect(
 	jobject compressed_direct_buf = (*env)->GetObjectField(env, this, Lz4Compressor_compressedDirectBuf);
 
 	const char* uncompressed_bytes = (*env)->GetDirectBufferAddress(env, uncompressed_direct_buf);
-    if (uncompressed_bytes == 0) {
-    	return (jint)0;
-	}
+    char* compressed_bytes = (*env)->GetDirectBufferAddress(env, compressed_direct_buf);
 
-	char* compressed_bytes = (*env)->GetDirectBufferAddress(env, compressed_direct_buf);
-    if (compressed_bytes == 0) {
-		return (jint)0;
+	if (uncompressed_bytes == 0 || compressed_bytes == 0) {
+    	return (jint)0;
 	}
   
     // Compress
-    int r = LZ4_compress(uncompressed_bytes, compressed_bytes, uncompressed_direct_buf_len);
+    r = LZ4_compress(uncompressed_bytes, compressed_bytes, uncompressed_direct_buf_len);
 
     if (r > 0) {
         (*env)->SetIntField(env, this, Lz4Compressor_uncompressedDirectBufLen, 0);
     } else {
-        const int msg_len = 32;
-        char exception_msg[msg_len];
-        snprintf(exception_msg, msg_len, "%s returned: %d", "LZ4_compress_limitedOutput", r);
+        char exception_msg[EXCEPTION_STRING_MAXLEN];
+       	PORTABLE_SNPRINTF_START(exception_msg, EXCEPTION_STRING_MAXLEN, "%s returned: %d", "LZ4_compress", r);
+		PORTABLE_SNPRINTF_END(exception_msg, EXCEPTION_STRING_MAXLEN);
         THROW(env, "java/lang/InternalError", exception_msg);
     }
 
@@ -106,30 +106,28 @@ JNIEXPORT jint JNICALL
 Java_com_hadoop_compression_fourmc_Lz4Compressor_compressBytesDirectMC(
   JNIEnv *env, jobject this)
 {
+	int r;
     jobject uncompressed_direct_buf = (*env)->GetObjectField(env, this, Lz4Compressor_uncompressedDirectBuf);
     unsigned int uncompressed_direct_buf_len = (*env)->GetIntField(env, this, Lz4Compressor_uncompressedDirectBufLen);
 
     jobject compressed_direct_buf = (*env)->GetObjectField(env, this, Lz4Compressor_compressedDirectBuf);
 
     const char* uncompressed_bytes = (*env)->GetDirectBufferAddress(env, uncompressed_direct_buf);
-    if (uncompressed_bytes == 0) {
-        return (jint)0;
-    }
-
     char* compressed_bytes = (*env)->GetDirectBufferAddress(env, compressed_direct_buf);
-    if (compressed_bytes == 0) {
+
+	if (uncompressed_bytes == 0 || compressed_bytes == 0) {
         return (jint)0;
     }
 
     // Compress
-    int r = LZ4_compressMC(uncompressed_bytes, compressed_bytes, uncompressed_direct_buf_len);
+    r = LZ4_compressMC(uncompressed_bytes, compressed_bytes, uncompressed_direct_buf_len);
 
     if (r > 0) {
         (*env)->SetIntField(env, this, Lz4Compressor_uncompressedDirectBufLen, 0);
     } else {
-        const int msg_len = 32;
-        char exception_msg[msg_len];
-        snprintf(exception_msg, msg_len, "%s returned: %d", "LZ4_compress_limitedOutput", r);
+        char exception_msg[EXCEPTION_STRING_MAXLEN];
+       	PORTABLE_SNPRINTF_START(exception_msg, EXCEPTION_STRING_MAXLEN, "%s returned: %d", "LZ4_compressMC", r);
+		PORTABLE_SNPRINTF_END(exception_msg, EXCEPTION_STRING_MAXLEN);
         THROW(env, "java/lang/InternalError", exception_msg);
     }
 
@@ -141,32 +139,30 @@ JNIEXPORT jint JNICALL
 Java_com_hadoop_compression_fourmc_Lz4Compressor_compressBytesDirectHC(
   JNIEnv *env, jobject this, jint clevel)
 {
+	int r;
     jobject uncompressed_direct_buf = (*env)->GetObjectField(env, this, Lz4Compressor_uncompressedDirectBuf);
     unsigned int uncompressed_direct_buf_len = (*env)->GetIntField(env, this, Lz4Compressor_uncompressedDirectBufLen);
 
     jobject compressed_direct_buf = (*env)->GetObjectField(env, this, Lz4Compressor_compressedDirectBuf);
 
     const char* uncompressed_bytes = (*env)->GetDirectBufferAddress(env, uncompressed_direct_buf);
-    if (uncompressed_bytes == 0) {
-        return (jint)0;
-    }
-
     char* compressed_bytes = (*env)->GetDirectBufferAddress(env, compressed_direct_buf);
-    if (compressed_bytes == 0) {
+
+	if (uncompressed_bytes == 0 || compressed_bytes == 0) {
         return (jint)0;
     }
 
     // Compress
-    int r = LZ4_compressHC2(uncompressed_bytes, compressed_bytes, uncompressed_direct_buf_len, clevel);
+    r = LZ4_compressHC2(uncompressed_bytes, compressed_bytes, uncompressed_direct_buf_len, clevel);
 
     if (r > 0) {
         (*env)->SetIntField(env, this, Lz4Compressor_uncompressedDirectBufLen, 0);
     } else {
-        const int msg_len = 32;
-        char exception_msg[msg_len];
-        snprintf(exception_msg, msg_len, "%s returned: %d", "LZ4_compress_limitedOutput", r);
+        char exception_msg[EXCEPTION_STRING_MAXLEN];
+       	PORTABLE_SNPRINTF_START(exception_msg, EXCEPTION_STRING_MAXLEN, "%s returned: %d", "LZ4_compressHC2", r);
+		PORTABLE_SNPRINTF_END(exception_msg, EXCEPTION_STRING_MAXLEN);
         THROW(env, "java/lang/InternalError", exception_msg);
-    }
+	}
 
     return (jint)r;
 }

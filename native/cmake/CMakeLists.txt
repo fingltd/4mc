@@ -15,12 +15,12 @@ IF( ${SIZEOF_VOID_P} STREQUAL  "8" )
 ENDIF()
 
 option(BUILD_TOOLS "Build the command line tools" ON)
-option(BUILD_LIBS  "Build the JNI native library for hadoop-4mc" OFF)
+option(BUILD_LIBS  "Build the JNI native library for hadoop-4mc" ON)
 
-if(UNIX AND BUILD_LIBS)
+if(UNIX AND NOT APPLE AND BUILD_LIBS)
     if(CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64")
         add_definitions(-fPIC)
-    endif(CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64")
+    endif()
 endif()
 
 set(LZ4_DIR ../lz4/)
@@ -29,15 +29,26 @@ set(LZ4_SRCS ${LZ4_DIR}xxhash.h ${LZ4_DIR}xxhash.c ${LZ4_DIR}lz4.c ${LZ4_DIR}lz4
 set(4MC_SRCS ${PRG_DIR}4mccli.c ${PRG_DIR}4mc.c)
 set(HADOOP4MC_SRCS ${PRG_DIR}jniCompressor.c ${PRG_DIR}jniDecompressor.c)
 
+if(NOT WIN32)
+	add_definitions(-O3)
+	add_definitions("-std=c99")
+endif()
+	
 if(BUILD_TOOLS)
-    add_definitions(-O3)
     add_executable(4mc ${LZ4_SRCS} ${4MC_SRCS})
-    # set_target_properties(lz4 PROPERTIES COMPILE_DEFINITIONS DISABLE_LZ4C_LEGACY_OPTIONS)
     install(TARGETS 4mc RUNTIME DESTINATION "bin/")
 endif()
 
 if(BUILD_LIBS)
-    add_definitions(-O3 -I$ENV{JAVA_HOME}/include -I$ENV{JAVA_HOME}/include/linux)
+	find_package(JNI)
+	if (JNI_FOUND)
+		message (STATUS "JNI_INCLUDE_DIRS=${JNI_INCLUDE_DIRS}")
+		message (STATUS "JNI_LIBRARIES=${JNI_LIBRARIES}")
+		INCLUDE_DIRECTORIES(${JNI_INCLUDE_DIRS})
+	else()
+		MESSAGE(FATAL_ERROR "Found JNI: failed")
+	endif()	
+    
     add_library(hadoop-4mc SHARED ${LZ4_SRCS} ${HADOOP4MC_SRCS})
     install(TARGETS 4mc RUNTIME DESTINATION "lib/")
 endif()
@@ -45,7 +56,6 @@ endif()
 #warnings
 
 ADD_DEFINITIONS("-Wall")
-ADD_DEFINITIONS("-std=c99")
 ADD_DEFINITIONS("-DLZ4_VERSION=\"1.2.1\"")
 INCLUDE_DIRECTORIES (${LZ4_DIR})
 

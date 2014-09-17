@@ -47,5 +47,24 @@
 	} \
   }
 
+#if defined(_WIN32) || defined(__WIN32__) || defined(WIN32)
+
+	#define PORTABLE_SNPRINTF_START _snprintf
+	#define PORTABLE_SNPRINTF_END(buf, size) buf[size-1]=0;
+
+	#define PORTABLE_VSNPRINTF_START _vsnprintf
+	#define PORTABLE_VSNPRINTF_END(buf, size) buf[size-1]=0;
+
+#else
+
+	#define PORTABLE_SNPRINTF_START snprintf
+	#define PORTABLE_SNPRINTF_END(buf, size)
+
+	#define PORTABLE_VSNPRINTF_START vsnprintf
+	#define PORTABLE_VSNPRINTF_END(buf, size)
+
+#endif
+
+
 #endif // __FOURMC_JNIHELPER_H
 

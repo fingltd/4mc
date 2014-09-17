@@ -3,9 +3,9 @@
 ## About
 
 The 4MC (4 More Compression) is a library for hadoop providing a new **splittable compressed file format** (4mc) which lets you leverage the power of LZ4 algorithm. It's been designed to add more features to existing big data solutions like HADOOP/ElephantBird which are currently mainly based on LZO, addressing the following major points:
-* **Licensing**: LZO is GPL, while LZ4 and 4mc are BSD!
-* **Performances**: LZ4 is world's fastest compression but not only! It can achieve seamlessly much higher compression ratios by using medium/high codecs, thus going very near to GZIP ratios, at the price of compression CPU time only, since decompressors are simply going to speed up even more. 
+* **Performances**: LZ4 is not only the world's fastest compression algorithm, it can achieve seamlessly much higher compression ratios by using medium/high codecs, thus going very near to GZIP ratios, at the price of compression CPU time only, since decompressors are simply going to speed up even more. 
 * **Hadoop/EB**: hadoop-lzo solution needs external index file to be able to split and process in parallel the big files, leveraging local mappers. 4mc format has been designed for big data purpose, thus the block index is internal, there is no need for any external file or pre processing of input data: any 4mc file is ready for parallel processing.
+* **Licensing**: LZO is GPL, while LZ4 and 4mc are BSD!
 
 ## License
 
@@ -26,7 +26,7 @@ BSD 2-Clause License - http://www.opensource.org/licenses/bsd-license.php
 * **High** Compression: 5x slower than fast, +25% ratio (LZ4 HC lvl 4)
 * **Ultra** Compression: 13x slower than fast, +30% ratio (LZ4 HC lvl 8) 
 
-Bechmark with silesia on Linux CentOS 6.4 64bit - HP DL 380P Intel(R) Xeon(R) CPU E5-2697 v2 @ 2.70GHz
+Bechmark with silesia on Linux CentOS 6.4 64bit - Intel(R) CPU 64bit @ 2.70GHz
 ```
  Algorithm     Compression Speed     Decompression Speed      Ratio
  Fast                   390 MB/s               2200 MB/s      2.084

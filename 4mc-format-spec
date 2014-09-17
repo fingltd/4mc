@@ -2,8 +2,8 @@
 
 The 4MC (4 More Compression) file format is composed by a signature, 
 followed by the file header, followed by one or more compressed
-blocks, followed by the index footer, followed by signature again:
-SIGN + FILE HEADER + BLOCK1 + BLOCK2 + ... + BLOCKN + IDXFOOTER + SIGN
+blocks, followed by the index footer:
+SIGN + FILE HEADER + BLOCK1 + BLOCK2 + ... + BLOCKN + IDXFOOTER
 
 Each block consists of a block header, with several required
 and optional items, followed by compressed data.

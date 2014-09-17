@@ -73,6 +73,11 @@ Please note that snippet above enables all codecs provided in the library, as fo
 * **4mc codecs** to read and write splittable LZ4 compressed files: *FourMcCodec FourMcMediumCodec FourMcHighCodec FourMcUltraCodec*
 * **straight LZ4 codecs** usable in your intermediate job outputs or as alternate compression for your solution (e.g. in SequenceFile): *Lz4Codec Lz4MediumCodec Lz4HighCodec Lz4UltraCodec*
 
+*Why so many different codecs and not usual single one reading level from config?*
+The aim here is to have by all means a way to programmatically tune your M/R engine at any stage.
+E.g. use case: M/R job willing to have a fast/medium codec as intermediate map output, and then high codec in output, as data is going to be kept for long time.
+Please remember once again that compression level in LZ4 is seamless to the decompressor and the more you compress the data not only affects the output size but also the decompressor speed, as it gets even faster.
+
 ## Java examples
 
 In java examples folder you can find 2 examples:

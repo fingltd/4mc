@@ -51,7 +51,7 @@ Hadoop-2.x : test in progress.
 * **Java:** hadoop-4mc library for hadoop can be built with maven, using provided pom.
 * **Java Native:** see above, make sure JAVA_HOME is set.
 
-# Hadoop configuration
+## Hadoop configuration
 
 First of all you have to copy hadoop-4mc jar and related native to your cluster lib path and native lib path respectively.
 Enabling codecs has no difference from usual, i.e. by adding them to configuration xml (core-site.xml):
@@ -70,8 +70,8 @@ Enabling codecs has no difference from usual, i.e. by adding them to configurati
 ```
 
 Please note that snippet above enables all codecs provided in the library, as follows:
-* 4mc codecs to read and write splittable LZ4 compressed files: *FourMcCodec FourMcMediumCodec FourMcHighCodec FourMcUltraCodec*
-* straight LZ4 codecs usable in your intermediate job outputs or as alternate compression for your solution (e.g. in SequenceFile): *Lz4Codec Lz4MediumCodec Lz4HighCodec Lz4UltraCodec*
+* **4mc codecs** to read and write splittable LZ4 compressed files: *FourMcCodec FourMcMediumCodec FourMcHighCodec FourMcUltraCodec*
+* **straight LZ4 codecs** usable in your intermediate job outputs or as alternate compression for your solution (e.g. in SequenceFile): *Lz4Codec Lz4MediumCodec Lz4HighCodec Lz4UltraCodec*
 
 ## Java examples
 

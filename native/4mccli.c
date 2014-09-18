@@ -145,8 +145,8 @@ int usage(void)
     DISPLAY( " -f     : overwrite output without prompting \n");
     DISPLAY( " -V     : display Version number and exit\n");
     DISPLAY( " -v     : verbose mode\n");
-    DISPLAY( " -q     : quite mode\n");
-    DISPLAY( " -h/-H  : display help/long help and exit\n");
+    DISPLAY( " -q     : quiet mode\n");
+    DISPLAY( " -h     : display help and exit\n");
     return 0;
 }
 

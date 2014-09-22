@@ -81,6 +81,7 @@ Please remember once again that compression level in LZ4 is seamless to the deco
 In java examples folder you can find 2 examples:
 * **text/TestTextInput.java** : this example is a perfect skeleton to start working with 4mc files on your text files
 * **elephant-bird/FourMcEbProtoInputFormat.java** : this adapter bridges EB frameworking letting you read 4mc files containing binary protobuf objects of your own type
+* **elephant-bird/FourMcEbProtoOutputFormat.java** : this adapter bridges EB frameworking letting you write 4mc files containing binary protobuf objects of your own type
 
 ## How To Contribute
 

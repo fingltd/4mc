@@ -92,4 +92,4 @@ This is the very first version of the library. Bug fixes, features, and document
 Major contributors are listed below.
 
 * Carlo Medas - *author of the 4mc format and library*
-* Yann Collett - *mentor, author of LZ4 compression library*
+* Yann Collet - *mentor, author of LZ4 compression library*

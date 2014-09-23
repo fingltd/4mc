@@ -44,7 +44,7 @@ Releases with artifacts available at https://github.com/carlomedas/4mc/releases 
 ## Build
 
 * **Native:** 4mc command line tool and hadoop-4mc native library for JNI codecs
-  Makefile is provided for unix/linux; also cmake can be used (still needs refinement for Windows).
+  Makefile is provided for unix/linux/mac; also cmake can be used (best choice on Windows).
 
 * **Java:** hadoop-4mc library for hadoop can be built with maven, using provided pom.
 * **Java Native:** see above, make sure JAVA_HOME is set.
@@ -91,5 +91,5 @@ This is the very first version of the library. Bug fixes, features, and document
 
 Major contributors are listed below.
 
-* Carlo Medas - *author of the mc4 format and library*
+* Carlo Medas - *author of the 4mc format and library*
 * Yann Collett - *mentor, author of LZ4 compression library*

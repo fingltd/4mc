@@ -6,67 +6,81 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+
+        <!-- To force to use specific java version, if needed -->
+        <!-- javac.src.version>1.7</javac.src.version>
+        <javac.target.version>1.7</javac.target.version-->
     </properties>
 
-  <groupId>com.hadoop.fourmc</groupId>
-  <artifactId>hadoop-4mc</artifactId>
-  <version>1.1.0</version>
-  <packaging>jar</packaging>
+    <groupId>com.hadoop.fourmc</groupId>
+    <artifactId>hadoop-4mc</artifactId>
+    <version>1.1.0</version>
+    <packaging>jar</packaging>
 
-   <name>4mc</name>
-  <url>https://github.com/carlomedas/4mc</url>
-  <description>
-  4mc - Four More Compression, LZ4 power unleashed in hadoop.
-  </description>
+    <name>4mc</name>
+    <url>https://github.com/carlomedas/4mc</url>
+    <description>
+        4mc - Four More Compression, LZ4 power unleashed in hadoop.
+    </description>
 
-  <licenses>
-    <license>
-      <name>BSD</name>
-      <url>http://opensource.org/licenses/BSD-2-Clause</url>
-      <distribution>repo</distribution>
-    </license>
-  </licenses>
+    <licenses>
+        <license>
+            <name>BSD</name>
+            <url>http://opensource.org/licenses/BSD-2-Clause</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
 
-  <organization>
-    <name>Carlo Medas</name>
-    <url>-</url>
-  </organization>
+    <organization>
+        <name>Carlo Medas</name>
+        <url>-</url>
+    </organization>
 
-  <developers>
-    <developer>
-      <id>carlo</id>
-      <name>Carlo Medas</name>
-    </developer>
-  </developers>
- 
- 
+    <developers>
+        <developer>
+            <id>carlo</id>
+            <name>Carlo Medas</name>
+        </developer>
+    </developers>
+
+
     <dependencies>
 
-      <!-- utils -->
-      <dependency>
-        <groupId>commons-lang</groupId>
-        <artifactId>commons-lang</artifactId>
-        <version>2.4</version>
-      </dependency>
+        <!-- utils -->
         <dependency>
-          <groupId>commons-logging</groupId>
-          <artifactId>commons-logging</artifactId>
-          <version>1.1.1</version>
+            <groupId>commons-lang</groupId>
+            <artifactId>commons-lang</artifactId>
+            <version>2.4</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+            <version>1.1.1</version>
         </dependency>
 
-      <!-- hadoop -->
-      <dependency>
-        <groupId>org.apache.hadoop</groupId>
-        <artifactId>hadoop-client</artifactId>
-        <version>1.1.2</version>
-        <scope>provided</scope>
-      </dependency>
+        <!-- hadoop -->
+        <dependency>
+            <groupId>org.apache.hadoop</groupId>
+            <artifactId>hadoop-client</artifactId>
+            <version>1.1.2</version>
+            <scope>provided</scope>
+        </dependency>
 
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
             <version>3.1</version>
         </dependency>
+
+
+        <!-- test -->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.8.2</version>
+            <scope>test</scope>
+        </dependency>
+
 
     </dependencies>
 

@@ -95,7 +95,7 @@ public class FourMcBlockIndex {
         if (block >= 0) { // direct hit on a block start position
             return blockOffsets[block];
         } else {
-            block = Math.abs(block) - 1;
+            block = -block - 1;
             if (block > blockOffsets.length - 1) {
                 return NOT_FOUND;
             }
@@ -114,7 +114,7 @@ public class FourMcBlockIndex {
         if (block >= 0) { // direct hit
             return block;
         } else {
-            block = Math.abs(block) - 1 - 1;
+            block = -block - 1 - 1;
             if (block > (blockOffsets.length - 1) || block<0) {
                 return NOT_FOUND;
             }

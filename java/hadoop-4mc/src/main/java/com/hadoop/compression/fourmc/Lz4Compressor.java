@@ -44,7 +44,7 @@ import java.nio.ByteBuffer;
 /**
  * LZ4 Compressor (FAST).
  */
-class Lz4Compressor implements Compressor {
+public class Lz4Compressor implements Compressor {
     private static final Log LOG = LogFactory.getLog(Lz4Compressor.class.getName());
 
     private int directBufferSize;

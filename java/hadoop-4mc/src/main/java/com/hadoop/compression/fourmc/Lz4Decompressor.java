@@ -44,7 +44,7 @@ import java.nio.ByteBuffer;
 /**
  * LZ4 Decompressor, tuned for 4mc purposes.
  */
-class Lz4Decompressor implements Decompressor {
+public class Lz4Decompressor implements Decompressor {
 
     private static final Log LOG = LogFactory.getLog(Lz4Decompressor.class.getName());
 

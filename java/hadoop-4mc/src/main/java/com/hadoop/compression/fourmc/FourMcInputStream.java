@@ -39,6 +39,7 @@ import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.compress.BlockDecompressorStream;
+import org.apache.hadoop.io.compress.CodecPool;
 import org.apache.hadoop.io.compress.Decompressor;
 
 import java.io.EOFException;
@@ -331,9 +332,10 @@ public class FourMcInputStream extends BlockDecompressorStream {
     public void close() throws IOException {
         byte[] b = new byte[4096];
         while (!decompressor.finished()) {
-            decompressor.decompress(b, 0, b.length);
+          decompressor.decompress(b, 0, b.length);
         }
         super.close();
+        CodecPool.returnDecompressor(decompressor);
     }
 }
 

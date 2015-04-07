@@ -205,6 +205,7 @@ public class FourMcInputStream extends BlockDecompressorStream {
             buf = new byte[readTailSize];
             readFully(indexIn, buf, 0, buf.length);
         }
+        indexIn.close();
 
         int startFooterOffset = readTailSize - footerSize;
 

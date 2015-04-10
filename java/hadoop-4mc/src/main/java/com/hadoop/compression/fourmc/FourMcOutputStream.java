@@ -79,12 +79,20 @@ public class FourMcOutputStream extends CompressorStream {
         }
     }
 
-    public FourMcOutputStream(OutputStream out, Compressor compressor, int bufferSize)
-            throws IOException {
+    public FourMcOutputStream(OutputStream out, Compressor compressor, int bufferSize)  throws IOException {
         super(new CountingOutputStream(out), compressor, bufferSize);
+
         this.cout = (CountingOutputStream) this.out;
         this.blockOffsets = new ArrayList<Long>(32);
-        write4mcHeader(this.out);
+
+        try {
+            write4mcHeader(this.out);
+        } catch (IOException e) {
+            // force release compressor and related direct buffers
+            ((Lz4Compressor)this.compressor).releaseDirectBuffers();
+            this.compressor=null;
+            throw e;
+        }
     }
 
     /**

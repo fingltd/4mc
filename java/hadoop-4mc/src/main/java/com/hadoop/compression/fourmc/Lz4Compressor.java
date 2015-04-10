@@ -263,6 +263,16 @@ public class Lz4Compressor implements Compressor {
         bytesRead = bytesWritten = 0L;
     }
 
+    @Override
+    protected void finalize() {
+        try {
+            super.finalize();
+        } catch (Throwable ignored) {
+        }
+        releaseDirectBuffers();
+    }
+
+
     /**
      * Return number of bytes given to this compressor since last reset.
      */

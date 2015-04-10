@@ -61,6 +61,15 @@ public class DirectBufferPool {
         }
     }
 
+    public synchronized void forceReleaseBuffers() {
+        if (!enabled) return;
+        allocatedBuffers=0;
+        usedBuffers=0;
+        allocatedBytes=0;
+        usedBytes=0;
+        poolMap.clear();
+    }
+
     public synchronized void disable() {
         enabled=false;
         allocatedBuffers=0;

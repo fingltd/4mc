@@ -242,7 +242,12 @@ public class Lz4Decompressor implements Decompressor {
 
     @Override
     protected void finalize() {
+        try {
+            super.finalize();
+        } catch (Throwable ignored) {
+        }
         end();
+        releaseDirectBuffers();
     }
 
     // trying to get rid of java.lang.OufOfMemoryError: Direct Buffer Memory

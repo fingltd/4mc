@@ -74,7 +74,14 @@ public class FourMcInputStream extends BlockDecompressorStream {
     public FourMcInputStream(InputStream in, Decompressor decompressor,
                              int bufferSize) throws IOException {
         super(in, decompressor, bufferSize);
-        readHeader(in);
+        try {
+            readHeader(in);
+        } catch (IOException e) {
+            // force release direct buffers of decompressor
+            ((Lz4Decompressor)this.decompressor).releaseDirectBuffers();
+            this.decompressor=null;
+            throw e;
+        }
     }
 
 

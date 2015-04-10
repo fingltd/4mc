@@ -122,6 +122,10 @@ public class FourMcOutputStream extends CompressorStream {
 
         out.close();
         closed = true;
+
+        // force release compressor and related direct buffers
+        ((Lz4Compressor)compressor).releaseDirectBuffers();
+        compressor=null;
     }
 
     @Override

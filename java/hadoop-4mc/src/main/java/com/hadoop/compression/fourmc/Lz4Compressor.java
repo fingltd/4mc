@@ -33,6 +33,7 @@
 **/
 package com.hadoop.compression.fourmc;
 
+import com.hadoop.compression.fourmc.util.DirectBufferPool;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
@@ -114,18 +115,22 @@ public class Lz4Compressor implements Compressor {
                 buf.clear();
                 return buf;
             }
-            try {
-                // Manually free the old buffer using undocumented unsafe APIs.
-                // If this fails, we'll drop the reference and hope GC finds it
-                // eventually.
-                Object cleaner = buf.getClass().getMethod("cleaner").invoke(buf);
-                cleaner.getClass().getMethod("clean").invoke(cleaner);
-            } catch (Exception e) {
-                // Perhaps a non-sun-derived JVM - contributions welcome
-                LOG.warn("Couldn't realloc bytebuffer", e);
-            }
+
+            DirectBufferPool.getInstance().release(buf);
         }
-        return ByteBuffer.allocateDirect(newSize);
+        return DirectBufferPool.getInstance().allocate(newSize);
+    }
+
+    // trying to get rid of java.lang.OufOfMemoryError: Direct Buffer Memory
+    public void releaseDirectBuffers() {
+        if (compressedDirectBuf != null) {
+            DirectBufferPool.getInstance().release(compressedDirectBuf);
+            compressedDirectBuf=null;
+        }
+        if (uncompressedDirectBuf != null) {
+            DirectBufferPool.getInstance().release(uncompressedDirectBuf);
+            uncompressedDirectBuf=null;
+        }
     }
 
     private void init(int directBufferSize) {

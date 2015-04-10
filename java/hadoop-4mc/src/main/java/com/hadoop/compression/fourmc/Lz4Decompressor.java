@@ -33,6 +33,7 @@
 **/
 package com.hadoop.compression.fourmc;
 
+import com.hadoop.compression.fourmc.util.DirectBufferPool;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.io.compress.Decompressor;
@@ -97,8 +98,8 @@ public class Lz4Decompressor implements Decompressor {
     public Lz4Decompressor(int directBufferSize) {
         this.directBufferSize = directBufferSize;
 
-        compressedDirectBuf = ByteBuffer.allocateDirect(directBufferSize);
-        uncompressedDirectBuf = ByteBuffer.allocateDirect(directBufferSize);
+        compressedDirectBuf = DirectBufferPool.getInstance().allocate(directBufferSize);
+        uncompressedDirectBuf = DirectBufferPool.getInstance().allocate(directBufferSize);
         uncompressedDirectBuf.position(directBufferSize);
     }
 
@@ -242,6 +243,18 @@ public class Lz4Decompressor implements Decompressor {
     @Override
     protected void finalize() {
         end();
+    }
+
+    // trying to get rid of java.lang.OufOfMemoryError: Direct Buffer Memory
+    public void releaseDirectBuffers() {
+        if (compressedDirectBuf != null) {
+            DirectBufferPool.getInstance().release((ByteBuffer) compressedDirectBuf);
+            compressedDirectBuf=null;
+        }
+        if (uncompressedDirectBuf != null) {
+            DirectBufferPool.getInstance().release((ByteBuffer) uncompressedDirectBuf);
+            uncompressedDirectBuf=null;
+        }
     }
 
     /**

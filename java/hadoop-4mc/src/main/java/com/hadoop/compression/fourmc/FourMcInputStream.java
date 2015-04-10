@@ -335,6 +335,10 @@ public class FourMcInputStream extends BlockDecompressorStream {
           decompressor.decompress(b, 0, b.length);
         }
         super.close();
+
+        // force release direct buffers of decompressor
+        ((Lz4Decompressor)decompressor).releaseDirectBuffers();
+        decompressor=null;
     }
 }
 

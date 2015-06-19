@@ -55,15 +55,16 @@ public class FourMcNativeCodeLoader {
             //helps application loading the libraries using distributed cache in Hadoop.
             String lib = "hadoop-4mc";
             String ld_lib_path = System.getenv("LD_LIBRARY_PATH");
-            String[] paths = ld_lib_path.split(":");
-            for(int i=0; i<paths.length; i++) {
-               String p = paths[i];
-               File x = new File(p, "lib" + lib + ".so");
-               if (x.exists()) {
-                  System.load(x.getAbsolutePath());
-                  nativeLibraryLoaded = true;
-                  break;
-               }
+            if (ld_lib_path!=null) {
+                String[] paths = ld_lib_path.split(":");
+                for(String p : paths) {
+                   File x = new File(p, "lib" + lib + ".so");
+                   if (x.exists()) {
+                      System.load(x.getAbsolutePath());
+                      nativeLibraryLoaded = true;
+                      break;
+                   }
+                }
             }
             if(nativeLibraryLoaded) {
                 LOG.info("Loaded native hadoop-4mc library");
@@ -78,3 +79,4 @@ public class FourMcNativeCodeLoader {
     }
 
 }
+

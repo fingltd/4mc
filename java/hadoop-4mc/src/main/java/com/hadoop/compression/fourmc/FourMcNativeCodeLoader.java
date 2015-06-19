@@ -47,8 +47,28 @@ public class FourMcNativeCodeLoader {
             nativeLibraryLoaded = true;
             LOG.info("Loaded native hadoop-4mc library");
         } catch (Throwable t) {
-            LOG.error("Could not load native hadoop-4mc library", t);
-            nativeLibraryLoaded = false;
+            LOG.warn("Could not load native hadoop-4mc library", t);
+            LOG.info("Trying loading from LD_LIBRARY_PATH ...");
+            
+            //try to load the lib from LD_LIBRARY_PATH if library is not found in java.library.path
+            //helps application loading the libraries using distributed cache in Hadoop.
+            String lib = "hadoop-4mc";
+            String ld_lib_path = System.getenv("LD_LIBRARY_PATH");
+            String[] paths = ld_lib_path.split(":");
+            for(int i=0; i<paths.length; i++) {
+               String p = paths[i];
+               File x = new File(p, "lib" + lib + ".so");
+               if (x.exists()) {
+                  System.load(x.getAbsolutePath());
+                  nativeLibraryLoaded = true;
+                  break;
+               }
+            }
+            if(nativeLibraryLoaded) {
+                LOG.info("Loaded native hadoop-4mc library");
+            } else {
+                 LOG.error("Could not load native hadoop-4mc library");
+            }
         }
     }
 

@@ -13,7 +13,7 @@ CC:=$(CC)
 CFLAGS?= -O3
 #CFLAGS?= -ggdb
 CFLAGS+= -std=c99 -Wall -Wextra -Wundef -Wshadow -Wstrict-prototypes -DLZ4_VERSION=\"$(RELEASE)\"
-FLAGS= -I$(JAVA_HOME)/include -I$(JAVA_HOME)/include/linux $(CPPFLAGS) $(CFLAGS) $(LDFLAGS)
+FLAGS= -I$(JAVA_HOME)/include -I$(JAVA_HOME)/include/linux -I$(JAVA_HOME)/include/darwin $(CPPFLAGS) $(CFLAGS) $(LDFLAGS)
 
 BINDIR=$(PREFIX)/bin
 MANDIR=$(PREFIX)/share/man/man1

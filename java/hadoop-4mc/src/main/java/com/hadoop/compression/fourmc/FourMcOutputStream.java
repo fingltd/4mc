@@ -209,6 +209,10 @@ public class FourMcOutputStream extends CompressorStream {
                 rawWriteInt(checksum);
                 out.write(uncompressed, 0, uncompressed.length);
 
+                // fix by Xianjin YE (advancedxy) to https://github.com/carlomedas/4mc/issues/12
+                compressor.reset(); // reset compressor buffers
+                compressor.finish(); // set compressor to be finished.
+
             } else {     // write compressed data block
                 rawWriteInt(len);
                 int checksum = Lz4Compressor.xxhash32(buffer, 0, len, 0);

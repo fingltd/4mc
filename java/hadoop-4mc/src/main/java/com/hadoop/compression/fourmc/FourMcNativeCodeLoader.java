@@ -34,6 +34,10 @@
 package com.hadoop.compression.fourmc;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -41,37 +45,125 @@ public class FourMcNativeCodeLoader {
     private static final Log LOG = LogFactory.getLog(FourMcNativeCodeLoader.class);
     private static boolean nativeLibraryLoaded = false;
 
-    static {
+    /**
+     * The system property to force 4mc library to load from the library path,
+     * thus ignoring the embedded libraries inside jar.
+     */
+    public static final String USE_BINARIES_ON_LIB_PATH =
+            "com.hadoop.compression.fourmc.use.libpath";
+
+    private enum OS {
+        WINDOWS("win32", "dll"), LINUX("linux", "so"), MAC("darwin", "dylib"), SOLARIS("solaris", "so");
+        public final String name, libExtension;
+
+        private OS(String name, String libExtension) {
+            this.name = name;
+            this.libExtension = libExtension;
+        }
+    }
+
+    private static String arch() {
+        return System.getProperty("os.arch");
+    }
+
+    private static OS os() {
+        String osName = System.getProperty("os.name");
+        if (osName.contains("Linux")) {
+            return OS.LINUX;
+        } else if (osName.contains("Mac")) {
+            return OS.MAC;
+        } else if (osName.contains("Windows")) {
+            return OS.WINDOWS;
+        } else if (osName.contains("Solaris") || osName.contains("SunOS")) {
+            return OS.SOLARIS;
+        } else {
+            throw new UnsupportedOperationException("hadoop-4mc: Unsupported operating system: "
+                    + osName);
+        }
+    }
+
+    private static String resourceName() {
+        OS os = os();
+        String packagePrefix = FourMcNativeCodeLoader.class.getPackage().getName().replace('.', '/');
+        return "/" + packagePrefix + "/" + os.name + "/" + arch() + "/libhadoop-4mc." + os.libExtension;
+    }
+
+    private static boolean useBinariesOnLibPath() {
+        return Boolean.getBoolean(USE_BINARIES_ON_LIB_PATH);
+    }
+
+    private static synchronized void loadLibrary() {
+        if (nativeLibraryLoaded) {
+            LOG.info("hadoop-4mc: native library is already loaded");
+            return;
+        }
+
+        if (useBinariesOnLibPath()) {
+            try {
+                System.loadLibrary("hadoop-4mc");
+                nativeLibraryLoaded = true;
+                LOG.info("hadoop-4mc: loaded native library (lib-path)");
+            }
+            catch (Exception e) {
+                LOG.error("hadoop-4mc: cannot load native library (lib-path): ", e);
+            }
+            return;
+        }
+
+        // unpack and use embedded libraries
+
+        String resourceName = resourceName();
+        InputStream is = FourMcNativeCodeLoader.class.getResourceAsStream(resourceName);
+        if (is == null) {
+            throw new UnsupportedOperationException("Unsupported OS/arch, cannot find " + resourceName + ". Please try building from source.");
+        }
+        File tempLib;
         try {
-            //try to load the lib
-            System.loadLibrary("hadoop-4mc");
-            nativeLibraryLoaded = true;
-            LOG.info("Loaded native hadoop-4mc library");
-        } catch (Throwable t) {
-            LOG.warn("Could not load native hadoop-4mc library", t);
-            LOG.info("Trying loading from LD_LIBRARY_PATH ...");
-            
-            //try to load the lib from LD_LIBRARY_PATH if library is not found in java.library.path
-            //helps application loading the libraries using distributed cache in Hadoop.
-            String lib = "hadoop-4mc";
-            String ld_lib_path = System.getenv("LD_LIBRARY_PATH");
-            if (ld_lib_path!=null) {
-                String[] paths = ld_lib_path.split(":");
-                for(String p : paths) {
-                   File x = new File(p, "lib" + lib + ".so");
-                   if (x.exists()) {
-                      System.load(x.getAbsolutePath());
-                      nativeLibraryLoaded = true;
-                      break;
-                   }
+            tempLib = File.createTempFile("libhadoop-4mc", "." + os().libExtension);
+            // copy to tempLib
+            FileOutputStream out = new FileOutputStream(tempLib);
+            try {
+                byte[] buf = new byte[4096];
+                while (true) {
+                    int read = is.read(buf);
+                    if (read == -1) {
+                        break;
+                    }
+                    out.write(buf, 0, read);
+                }
+                try {
+                    out.close();
+                    out = null;
+                } catch (IOException e) {
+                    // ignore
+                }
+                System.load(tempLib.getAbsolutePath());
+                nativeLibraryLoaded = true;
+                LOG.info("hadoop-4mc: loaded native library (embedded)");
+            } finally {
+                try {
+                    if (out != null) {
+                        out.close();
+                    }
+                } catch (IOException e) {
+                    // ignore
+                }
+                if (tempLib.exists()) {
+                    if (!nativeLibraryLoaded) {
+                        tempLib.delete();
+                    } else {
+                        tempLib.deleteOnExit();
+                    }
                 }
             }
-            if(nativeLibraryLoaded) {
-                LOG.info("Loaded native hadoop-4mc library");
-            } else {
-                 LOG.error("Could not load native hadoop-4mc library");
-            }
+        } catch (Exception e) {
+            LOG.error("hadoop-4mc: cannot load native library  (embedded): ", e);
         }
+    }
+
+
+    static {
+        loadLibrary();
     }
 
     public static boolean isNativeCodeLoaded() {

@@ -38,6 +38,7 @@ Please note that 4mc compression codecs can be also used in any stage of the M/R
 
 ## Releases and change history
 Releases with artifacts available at https://github.com/carlomedas/4mc/releases - Attached artifacts contain jar with embedded native library for Windows/Linux/MacOS. You can anyway compile JNI bindings for your own platform and override embedded ones.
+4mc CLI tool for all platforms is now available at https://github.com/carlomedas/4mc/tree/master/tool
 * **4mc 1.4.0** - Native libraries are now embedded in jar, thus hadoop-4mc library can be used w/o manual configurations on Hadoop/Spark/Flink/etc
 * **4mc 1.3.0** - Introduced direct buffers pool, to cope with "java.lang.OufOfMemoryError: Direct Buffer Memory"
 * **4mc 1.1.0** - Support both of hadoop-1 and hadoop-2

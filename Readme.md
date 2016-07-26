@@ -14,9 +14,9 @@ BSD 2-Clause License - http://www.opensource.org/licenses/bsd-license.php
 ## 4MC package content
 
 4MC is composed by the following items, included in source code repository:
-* **4mc** - command line tool for compression/decompression of your files - written in C, working on Linux/MacOS/Windows
-* **hadoop-4mc** - java library to be used with hadoop to leverage 4mc format and LZ4 codecs (needs JNI below)
+* **hadoop-4mc** - java library to be used with hadoop to leverage 4mc format and LZ4 codecs (needs JNI below but in latest version the native library is embedded in jar)
 * **hadoop-4mc lib** native - JNI bindings leveraging LZ4 compression/decompression
+* **4mc** - command line tool for compression/decompression of your files - written in C, working on Linux/MacOS/Windows
 
 ## Compression speed and levels
 
@@ -37,7 +37,9 @@ Bechmark with silesia on Linux CentOS 6.4 64bit - Intel(R) CPU 64bit @ 2.70GHz
 Please note that 4mc compression codecs can be also used in any stage of the M/R as compression codecs.
 
 ## Releases and change history
-Releases with artifacts available at https://github.com/carlomedas/4mc/releases - Attached artifacts contain jar and 4mc.exe for Windows, 4mc CLI and JNI better to compile for your own platform on Linux/MacOs.
+Releases with artifacts available at https://github.com/carlomedas/4mc/releases - Attached artifacts contain jar with embedded native library for Windows/Linux/MacOS. You can anyway compile JNI bindings for your own platform and override embedded ones.
+* **4mc 1.4.0** - Native libraries are now embedded in jar, thus hadoop-4mc library can be used w/o manual configurations on Hadoop/Spark/Flink/etc
+* **4mc 1.3.0** - Introduced direct buffers pool, to cope with "java.lang.OufOfMemoryError: Direct Buffer Memory"
 * **4mc 1.1.0** - Support both of hadoop-1 and hadoop-2
 * **4mc 1.0.0** - Very first version of 4mc
 

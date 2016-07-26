@@ -8,13 +8,13 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
         <!-- To force to use specific java version, if needed -->
-        <!-- javac.src.version>1.7</javac.src.version>
+        <!--javac.src.version>1.7</javac.src.version>
         <javac.target.version>1.7</javac.target.version-->
     </properties>
 
     <groupId>com.hadoop.fourmc</groupId>
     <artifactId>hadoop-4mc</artifactId>
-    <version>1.3.1</version>
+    <version>1.4.0</version>
     <packaging>jar</packaging>
 
     <name>4mc</name>

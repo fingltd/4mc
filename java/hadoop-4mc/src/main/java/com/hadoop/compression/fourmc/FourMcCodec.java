@@ -151,13 +151,15 @@ public class FourMcCodec extends Lz4Codec {
     }
 
     /**
+     * 4MB has been decided to be the hard value here.
      * Block size cannot overcome 4MB limit (default). Can be configured as "io.compression.codec.4mc.blocksize"
      */
     protected int getCompressionBlockSize() {
-        int bufferSize = getConf().getInt(FOURMC_BLOCK_SIZE_KEY, FOURMC_MAX_BLOCK_SIZE);
+        return FOURMC_MAX_BLOCK_SIZE;
+        /*int bufferSize = getConf().getInt(FOURMC_BLOCK_SIZE_KEY, FOURMC_MAX_BLOCK_SIZE);
         if (bufferSize<1024*100 || bufferSize>FOURMC_MAX_BLOCK_SIZE) {
             bufferSize = FOURMC_MAX_BLOCK_SIZE;
         }
-        return bufferSize;
+        return bufferSize;*/
     }
 }

@@ -83,8 +83,8 @@ public class Lz4Codec implements Configurable, CompressionCodec {
     }
 
     public static boolean isNativeLoaded(Configuration conf) {
-        assert conf != null : "Configuration cannot be null!";
-        return nativeLoaded && conf.getBoolean("hadoop.native.lib", true);
+        //assert conf != null : "Configuration cannot be null!";
+        return nativeLoaded;
     }
 
     @Override

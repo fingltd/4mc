@@ -83,16 +83,14 @@ public class Lz4UltraCodec implements Configurable, CompressionCodec {
     }
 
     public static boolean isNativeLoaded(Configuration conf) {
-        assert conf != null : "Configuration cannot be null!";
-        return nativeLoaded && conf.getBoolean("hadoop.native.lib", true);
+        //assert conf != null : "Configuration cannot be null!";
+        return nativeLoaded;
     }
 
-    @Override
     public CompressionOutputStream createOutputStream(OutputStream out) throws IOException {
         return createOutputStream(out, createCompressor());
     }
 
-    @Override
     public CompressionOutputStream createOutputStream(OutputStream out,
                                                       Compressor compressor) throws IOException {
 
@@ -105,7 +103,6 @@ public class Lz4UltraCodec implements Configurable, CompressionCodec {
     }
 
 
-    @Override
     public Class<? extends Compressor> getCompressorType() {
         if (!isNativeLoaded(conf)) {
             throw new RuntimeException("native hadoop-4mc library not available");
@@ -113,7 +110,6 @@ public class Lz4UltraCodec implements Configurable, CompressionCodec {
         return Lz4UltraCompressor.class;
     }
 
-    @Override
     public Compressor createCompressor() {
         assert conf != null : "Configuration cannot be null! You must call setConf() before creating a compressor.";
         if (!isNativeLoaded(conf)) {
@@ -123,13 +119,11 @@ public class Lz4UltraCodec implements Configurable, CompressionCodec {
         return new Lz4UltraCompressor(LZ4_BUFFER_SIZE);
     }
 
-    @Override
     public CompressionInputStream createInputStream(InputStream in)
             throws IOException {
         return createInputStream(in, createDecompressor());
     }
 
-    @Override
     public CompressionInputStream createInputStream(InputStream in,
                                                     Decompressor decompressor)
             throws IOException {
@@ -139,7 +133,6 @@ public class Lz4UltraCodec implements Configurable, CompressionCodec {
         return new BlockDecompressorStream(in, decompressor, LZ4_BUFFER_SIZE);
     }
 
-    @Override
     public Class<? extends Decompressor> getDecompressorType() {
         if (!isNativeLoaded(conf)) {
             throw new RuntimeException("native hadoop-4mc library not available");

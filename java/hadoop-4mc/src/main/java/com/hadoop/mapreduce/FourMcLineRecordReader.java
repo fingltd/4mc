@@ -81,7 +81,7 @@ public class FourMcLineRecordReader extends RecordReader<LongWritable, Text> {
     }
 
     public String getFilePattern() {
-        return "\\.4mc";
+        return "\\.4mc&";
     }
 
     /**

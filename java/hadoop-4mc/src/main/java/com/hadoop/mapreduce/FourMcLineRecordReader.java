@@ -76,6 +76,14 @@ public class FourMcLineRecordReader extends RecordReader<LongWritable, Text> {
     private final LongWritable key = new LongWritable();
     private final Text value = new Text();
 
+    public String getName() {
+        return "fourmc";
+    }
+
+    public String getFilePattern() {
+        return "\\.4mc";
+    }
+
     /**
      * Get the progress within the split.
      */

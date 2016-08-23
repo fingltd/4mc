@@ -337,6 +337,9 @@ public class FourMcInputStream extends BlockDecompressorStream {
 
     @Override
     public void close() throws IOException {
+        if ( decompressor == null ) {
+            return;
+        }
         byte[] b = new byte[4096];
         while (!decompressor.finished()) {
           decompressor.decompress(b, 0, b.length);

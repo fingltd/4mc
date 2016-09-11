@@ -36,7 +36,7 @@ package com.hadoop.compression.fourmc;
 /**
  * Provides ZSTD compression at HC: High Compression (ZSTD level 6).
  */
-public class ZstdHighCompressor extends Lz4Compressor {
+public class ZstdHighCompressor extends ZstdCompressor {
 
     public ZstdHighCompressor(int directBufferSize) {
         super(directBufferSize);

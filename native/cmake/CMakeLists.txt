@@ -27,7 +27,21 @@ set(LZ4_DIR ../lz4/)
 set(ZSTD_DIR ../zstd/)
 set(PRG_DIR ../)
 set(LZ4_SRCS ${LZ4_DIR}xxhash.h ${LZ4_DIR}xxhash.c ${LZ4_DIR}lz4.c ${LZ4_DIR}lz4hc.c ${LZ4_DIR}lz4.h ${LZ4_DIR}lz4hc.h ${LZ4_DIR}lz4mc.c ${LZ4_DIR}lz4mc.h)
-set(ZSTD_FILES ${ZSTD_DIR}common/*.c ${ZSTD_DIR}compress/*.c ${ZSTD_DIR}decompress/*.c ${ZSTD_DIR}dictBuilder/*.c
+set(ZSTD_SRCS ${ZSTD_DIR}common/entropy_common.c 
+		${ZSTD_DIR}common/entropy_common.c 
+		${ZSTD_DIR}common/fse_decompress.c 
+		${ZSTD_DIR}common/zstd_common.c 
+		${ZSTD_DIR}common/xxhash.c 
+		${ZSTD_DIR}compress/fse_compress.c 
+		${ZSTD_DIR}compress/huf_compress.c
+		${ZSTD_DIR}compress/zbuff_compress.c
+		${ZSTD_DIR}compress/zstd_compress.c					
+		${ZSTD_DIR}decompress/huf_decompress.c 
+		${ZSTD_DIR}decompress/zbuff_decompress.c 
+		${ZSTD_DIR}decompress/zstd_decompress.c 
+		${ZSTD_DIR}dictBuilder/divsufsort.c
+		${ZSTD_DIR}dictBuilder/zdict.c
+)
 set(4MC_SRCS ${PRG_DIR}4mccli.c ${PRG_DIR}4mc.c)
 set(HADOOP4MC_SRCS ${PRG_DIR}jniCompressor.c ${PRG_DIR}jniDecompressor.c ${PRG_DIR}jniZstdCompressor.c ${PRG_DIR}jniZstdDecompressor.c)
 
@@ -35,9 +49,11 @@ if(NOT WIN32)
 	add_definitions(-O3)
 	add_definitions("-std=c99")
 endif()
-	
+
+INCLUDE_DIRECTORIES(../zstd ../zstd/common)
+
 if(BUILD_TOOLS)
-    add_executable(4mc ${LZ4_SRCS} ${4MC_SRCS})
+    add_executable(4mc ${LZ4_SRCS} ${ZSTD_SRCS} ${4MC_SRCS})
     install(TARGETS 4mc RUNTIME DESTINATION "bin/")
 endif()
 
@@ -51,7 +67,7 @@ if(BUILD_LIBS)
 		MESSAGE(FATAL_ERROR "Found JNI: failed")
 	endif()	
     
-    add_library(hadoop-4mc SHARED ${LZ4_SRCS} ${HADOOP4MC_SRCS})
+    add_library(hadoop-4mc SHARED ${LZ4_SRCS} ${ZSTD_SRCS} ${HADOOP4MC_SRCS})
     install(TARGETS 4mc RUNTIME DESTINATION "lib/")
 endif()
 

@@ -44,6 +44,9 @@ Bechmark with silesia on MacOS OSX El Captain - Intel(R) CPU 64bit @ 2.5GHz Core
  LZ4-Ultra                31 MB/s                502 MB/s      2.716
 ```
 Please note that 4mc/4mz compression codecs can be also used in any stage of the M/R as compression codecs.
+ZSTD is winning over LZ4 on almost all use cases, except for super real-time cases or near real-time cases where
+you are not needing long-term storage.
+
 
 ## Releases and change history
 Releases with artifacts available at https://github.com/carlomedas/4mc/releases - Attached artifacts contain jar with embedded native library for Windows/Linux/MacOS. You can anyway compile JNI bindings for your own platform and override embedded ones.
@@ -109,4 +112,4 @@ Bug fixes, features, and documentation improvements are welcome!
 Major contributors are listed below.
 
 * Carlo Medas - *author of the 4mc format and library*
-* Yann Collet - *mentor, author of LZ4 compression library*
+* Yann Collet - *mentor, author of LZ4 and ZSTD compression libraries*

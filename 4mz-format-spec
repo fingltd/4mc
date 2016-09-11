@@ -1,0 +1,35 @@
+=== 4MC/4MZ FILE FORMAT ===
+
+The 4MZ (4 More Compression on ZSTD) file format is composed by a signature,
+followed by the file header, followed by one or more compressed
+blocks, followed by the index footer:
+SIGN + FILE HEADER + BLOCK1 + BLOCK2 + ... + BLOCKN + IDXFOOTER
+
+Each block consists of a block header, with several required
+and optional items, followed by compressed data.
+
+The last block is marked as an empty block of size 0 (with full header, so 12 bytes set to 0).
+
+All data is stored in big endian format (network order).
+Data is compressed by means of ZSTD.
+Checksums are calculated by means of XXHASH32.
+
+Header:
+
+    MAGIC SIGNATURE:  4 bytes: "4MZ\0"
+    Version:          4 byte (1)
+    Header checksum:  4 bytes
+
+Blocks:
+
+    Uncompressed size:  4 bytes
+    Compressed size:    4 bytes, if compressed size==uncompressed size, then the data is stored as plain
+    Checksum:           4 bytes, calculated on the compressed data
+
+Footer:
+    Footer size:        4 bytes
+	Footer version:     4 byte (1)
+    Block index offset: 4 bytes delta offset for each stored block, the delta between offset between previous file position and next block
+    Footer size:        4 bytes (repeated to be able to read from end of file)
+    MAGIC SIGNATURE:    4 bytes: "4MZ\0"
+    Footer checksum:    4 bytes (always in XXHASH32)

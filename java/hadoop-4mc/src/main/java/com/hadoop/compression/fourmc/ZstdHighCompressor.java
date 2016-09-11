@@ -31,23 +31,19 @@
   You can contact LZ4 lib author at :
       - LZ4 source repository : http://code.google.com/p/lz4/
 **/
+package com.hadoop.compression.fourmc;
 
+/**
+ * Provides ZSTD compression at HC: High Compression (ZSTD level 9).
+ */
+public class ZstdHighCompressor extends Lz4Compressor {
 
-int fourMCcompressFilename  (int displayLevel, int overwrite, char* input_filename, char* output_filename, int compressionlevel);
-int fourMcDecompressFileName(int displayLevel, int overwrite, char* input_filename, char* output_filename);
+    public ZstdHighCompressor(int directBufferSize) {
+        super(directBufferSize);
+    }
 
+    public int compressBytesDirectSpecific() {
+        return compressBytesDirectHC(6);
+    }
 
-int fourMZcompressFilename  (int displayLevel, int overwrite, char* input_filename, char* output_filename, int compressionlevel);
-int fourMZDecompressFileName(int displayLevel, int overwrite, char* input_filename, char* output_filename);
-
-// null device, stdin and stdout, used by both cli and 4mc
-
-#define NULL_OUTPUT "null"
-static char stdinmark[] = "stdin";
-static char stdoutmark[] = "stdout";
-#ifdef _WIN32
-static char nulmark[] = "nul";
-#else
-static char nulmark[] = "/dev/null";
-#endif
-
+}

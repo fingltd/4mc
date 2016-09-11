@@ -91,10 +91,11 @@
 #endif
 
 
-#define FOURMC_VERSION "v1.0.0"
+#define FOURMC_VERSION "v2.0.0"
 #define AUTHOR "Carlo Medas"
-#define WELCOME_MESSAGE "*** 4mc CLI %i-bits %s by %s (%s) ***\n*** Unleashing the power of LZ4 by Yann Collet ***\n", (int)(sizeof(void*)*8), FOURMC_VERSION, AUTHOR, __DATE__
+#define WELCOME_MESSAGE "*** 4mc CLI %i-bits %s by %s (%s) ***\n*** Unleashing the power of LZ4 and ZSTD by Yann Collet/Facebook ***\n", (int)(sizeof(void*)*8), FOURMC_VERSION, AUTHOR, __DATE__
 #define FOURMC_EXTENSION ".4mc"
+#define FOURMZ_EXTENSION ".4mz"
 
 #define KB *(1U<<10)
 #define MB *(1U<<20)
@@ -136,12 +137,12 @@ int usage(void)
     DISPLAY( "input   : a filename\n");
     DISPLAY( "          with no FILE, or when FILE is - or %s, read standard input\n", stdinmark);
     DISPLAY( "Arguments :\n");
+    DISPLAY( " -z     : zstd compression (default is LZ4) \n");
     DISPLAY( " -1     : Fast compression (default) \n");
     DISPLAY( " -2     : Medium compression \n");
     DISPLAY( " -3     : High compression \n");
     DISPLAY( " -4     : Ultra compression \n");
-    DISPLAY( " -d     : decompression (default for %s extension)\n", FOURMC_EXTENSION);
-    DISPLAY( " -z     : force compression\n");
+    DISPLAY( " -d     : decompression (default for %s and %s exts)\n", FOURMC_EXTENSION, FOURMZ_EXTENSION);
     DISPLAY( " -f     : overwrite output without prompting \n");
     DISPLAY( " -V     : display Version number and exit\n");
     DISPLAY( " -v     : verbose mode\n");
@@ -169,7 +170,7 @@ void waitEnter(void)
 int main(int argc, char** argv)
 {
     int i, cLevel=0,  decode=0,  filenamesStart=2, legacy_format=0,
-        forceStdout=0, forceCompress=0, promptPause=0, overwriteMode=0;
+        forceStdout=0, forceCompress=0, promptPause=0, overwriteMode=0, zstdMode=0;
 
     // Display level modes exactly like LZ4 CLI
     // 0 : no display  // 1: errors  // 2 : + result + interaction + warnings ;  // 3 : + progression;  // 4 : + information
@@ -179,7 +180,8 @@ int main(int argc, char** argv)
     char* output_filename=0;
     char* dynNameSpace=0;
     char nullOutput[] = NULL_OUTPUT;
-    char extension[] = FOURMC_EXTENSION;
+    char extension4mc[] = FOURMC_EXTENSION;
+    char extension4mz[] = FOURMZ_EXTENSION;
 
     // Init
     programName = argv[0];
@@ -225,8 +227,8 @@ int main(int argc, char** argv)
                 case 'h': usage(); return 0;
                 case 'H': usage(); return 0;
 
-                    // Compression (default)
-                case 'z': forceCompress = 1; break;
+                    // ZSTD (default is LZ4)
+                case 'z': zstdMode = 1; forceCompress=1; break;
 
                     // Use Legacy format (for Linux kernel compression)
                 case 'l': legacy_format=1; break;
@@ -284,7 +286,8 @@ int main(int argc, char** argv)
         if ((!decode) && !(forceCompress))   // auto-determine compression or decompression, based on file extension
         {
             size_t l = strlen(input_filename);
-            if (!strcmp(input_filename+(l-4), FOURMC_EXTENSION)) decode=1;
+            if (!strcmp(input_filename+(l-4), FOURMC_EXTENSION) ||
+            	!strcmp(input_filename+(l-4), FOURMZ_EXTENSION)) decode=1;
         }
         if (!decode)   // compression to file
         {
@@ -292,7 +295,11 @@ int main(int argc, char** argv)
             dynNameSpace = (char*)calloc(1,l+5);
             output_filename = dynNameSpace;
             strcpy(output_filename, input_filename);
-            strcpy(output_filename+l, FOURMC_EXTENSION);
+            if (zstdMode) {
+            	strcpy(output_filename+l, FOURMZ_EXTENSION);
+            } else {
+            	strcpy(output_filename+l, FOURMC_EXTENSION);
+        	}
             DISPLAYLEVEL(2, "Compressed filename will be : %s \n", output_filename);
             break;
         }
@@ -305,9 +312,23 @@ int main(int argc, char** argv)
             strcpy(output_filename, input_filename);
             outl = inl;
             if (inl>4)
-                while ((outl >= inl-4) && (input_filename[outl] ==  extension[outl-inl+4])) output_filename[outl--]=0;
+                while ((outl >= inl-4) && (input_filename[outl] ==  extension4mc[outl-inl+4]))
+                	output_filename[outl--]=0;
+
+            if (outl != inl-5 && inl>4) {
+            	outl = inl;
+            	while ((outl >= inl-4) && (input_filename[outl] ==  extension4mz[outl-inl+4]))
+            	                	output_filename[outl--]=0;
+            	zstdMode=1;
+            }
+
             if (outl != inl-5) { DISPLAYLEVEL(1, "Cannot determine an output filename\n"); badusage(displayLevel); }
             DISPLAYLEVEL(2, "Decoding file %s \n", output_filename);
+            if (zstdMode) {
+            	DISPLAYLEVEL(2, "Compression: ZSTD\n");
+            } else {
+            	DISPLAYLEVEL(2, "Compression: LZ4\n");
+            }
         }
     }
 
@@ -319,9 +340,19 @@ int main(int argc, char** argv)
     if (!strcmp(output_filename,stdoutmark) && IS_CONSOLE(stdout) && !forceStdout) badusage(displayLevel);
 
     if (decode) {
-        fourMcDecompressFileName(displayLevel, overwriteMode, input_filename, output_filename);
+    	if (zstdMode==0) {
+    		fourMcDecompressFileName(displayLevel, overwriteMode, input_filename, output_filename);
+    	} else {
+    		fourMZDecompressFileName(displayLevel, overwriteMode, input_filename, output_filename);
+    	}
     } else {
-        fourMCcompressFilename(displayLevel, overwriteMode, input_filename, output_filename, cLevel);
+    	if (zstdMode==0) {
+    		DISPLAYLEVEL(2, "Compression: LZ4\n");
+    		fourMCcompressFilename(displayLevel, overwriteMode, input_filename, output_filename, cLevel);
+    	} else {
+    		DISPLAYLEVEL(2, "Compression: ZSTD\n");
+    		fourMZcompressFilename(displayLevel, overwriteMode, input_filename, output_filename, cLevel);
+    	}
     }
 
     if (promptPause) waitEnter();

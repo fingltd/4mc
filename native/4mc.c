@@ -59,6 +59,8 @@
 #include "lz4/lz4mc.h"
 #include "lz4/xxhash.h"
 
+#include "zstd/zstd.h"
+
 #include "4mc.h"
 
 
@@ -107,6 +109,7 @@
 
 #define CACHELINE 64
 #define FOURMC_MAGICNUMBER  0x344D4300
+#define FOURMZ_MAGICNUMBER  0x344D5A00
 #define FOURMC_VERSION      1
 #define MAGICNUMBER_SIZE    4
 #define FOURMC_HEADERSIZE   (MAGICNUMBER_SIZE+8)
@@ -383,6 +386,172 @@ int fourMCcompressFilename(int displayLevel, int overwrite, char* input_filename
 }
 
 
+int fourMZcompressFilename(int displayLevel, int overwrite, char* input_filename, char* output_filename, int compressionLevel)
+{
+	int zstdLevel=3; unsigned int bi;
+    unsigned long long filesize = 0;
+    unsigned long long compressedfilesize = 0;
+    unsigned int checkbits;
+    char* in_buff;
+    char* out_buff;
+    char* headerBuffer;
+    FILE* finput;
+    FILE* foutput;
+    clock_t start, end;
+    size_t sizeCheck, header_size, readSize;
+
+    unsigned int blockIndexesCount=0;
+    unsigned int blockIndexesReserved=8;
+    unsigned long long* blockIndexes = (unsigned long long*)calloc(blockIndexesReserved,sizeof(unsigned long long));
+
+    // Init
+    start = clock();
+    if ((displayLevel==2) && (compressionLevel>1)) displayLevel=3;
+
+    if (compressionLevel <= 1) {
+    	zstdLevel=1;
+    } else if (compressionLevel == 2) {
+    	zstdLevel=3;
+    } else if (compressionLevel == 3) {
+    	zstdLevel=6;
+    } else {
+        zstdLevel=12;
+    }
+
+    openIOFileHandles(displayLevel, overwrite, input_filename, output_filename, &finput, &foutput);
+
+    // Allocate Memory
+    in_buff  = (char*)malloc(FOURMC_BLOCKSIZE);
+    out_buff = (char*)malloc(FOURMC_BLOCKSIZE+CACHELINE);
+    headerBuffer = (char*)malloc(FOURMC_HEADERSIZE);
+    if (!in_buff || !out_buff || !(headerBuffer)) EXIT_WITH_FATALERROR("Allocation error : not enough memory");
+
+    // Write Archive Header
+    *(unsigned int*)headerBuffer = BIG_ENDIAN_32(FOURMZ_MAGICNUMBER);
+    *(unsigned int*)(headerBuffer+4)  = BIG_ENDIAN_32(FOURMC_VERSION);
+
+    checkbits = XXH32((headerBuffer), 8, 0);
+    *(unsigned int*)(headerBuffer+8)  = BIG_ENDIAN_32(checkbits);
+    header_size = FOURMC_HEADERSIZE;
+
+    // Write header
+    sizeCheck = fwrite(headerBuffer, 1, header_size, foutput);
+    if (sizeCheck!=header_size) EXIT_WITH_FATALERROR_OUTPUT("Write error : cannot write header");
+    compressedfilesize += header_size;
+
+    // read first block
+    readSize = fread(in_buff, (size_t)1, (size_t)FOURMC_BLOCKSIZE, finput);
+
+    // Main Loop
+    while (readSize>0)
+    {
+    	size_t outSize;
+
+        // ------------------------------
+        if (++blockIndexesCount >= blockIndexesReserved) {
+            unsigned int curSize = blockIndexesReserved;
+            unsigned long long* newBlockIndexes = (unsigned long long*)calloc(blockIndexesReserved*2,sizeof(unsigned long long));
+            blockIndexesReserved*=2;
+            for (bi=0; bi<curSize; ++bi) newBlockIndexes[bi] = blockIndexes[bi];
+            free(blockIndexes);
+            blockIndexes = newBlockIndexes;
+        }
+        blockIndexes[blockIndexesCount-1] = compressedfilesize;
+        // ------------------------------
+
+        filesize += readSize;
+        CONSOLE_PRINT_LEVEL(3, "\rRead : %i MB   ", (int)(filesize>>20));
+
+
+        // Compress Block
+        outSize = ZSTD_compress(out_buff+12, (int)readSize-1, in_buff, (int)readSize, zstdLevel);
+
+        if (!ZSTD_isError(outSize)) compressedfilesize += outSize+12; else compressedfilesize += readSize+12;
+        CONSOLE_PRINT_LEVEL(3, "==> %.2f%%   ", (double)compressedfilesize/filesize*100);
+
+        // Write Block
+        if (!ZSTD_isError(outSize))
+        {
+            int sizeToWrite; unsigned int checksum;
+            *(unsigned int*)(out_buff) = BIG_ENDIAN_32(readSize);
+            *(unsigned int*)(out_buff+4) = BIG_ENDIAN_32(outSize);
+            checksum = XXH32(out_buff+12, outSize, 0);
+            *(unsigned int*)(out_buff+8) = BIG_ENDIAN_32(checksum);
+
+            sizeToWrite = 12 + outSize;
+            sizeCheck = fwrite(out_buff, 1, sizeToWrite, foutput);
+            if (sizeCheck!=(size_t)(sizeToWrite)) EXIT_WITH_FATALERROR_OUTPUT("Write error : cannot write compressed block");
+        }
+        else  // Copy Original Uncompressed
+        {
+			unsigned int checksum;
+            *(unsigned int*)(out_buff) = BIG_ENDIAN_32(readSize);
+            *(unsigned int*)(out_buff+4) = BIG_ENDIAN_32(readSize);
+            checksum = XXH32(in_buff, (int)readSize, 0);
+            *(unsigned int*)(out_buff+8) = BIG_ENDIAN_32(checksum);
+            sizeCheck = fwrite(out_buff, 1, 12, foutput);
+            if (sizeCheck!=(size_t)(12)) EXIT_WITH_FATALERROR_OUTPUT("Write error : cannot write block header");
+            sizeCheck = fwrite(in_buff, 1, readSize, foutput);
+            if (sizeCheck!=readSize) EXIT_WITH_FATALERROR_OUTPUT("Write error : cannot write block");
+        }
+
+        // Read next block
+        readSize = fread(in_buff, (size_t)1, (size_t)FOURMC_BLOCKSIZE, finput);
+    }
+
+    // >>>> End of Stream mark <<<<
+    *(unsigned int*)(out_buff) = BIG_ENDIAN_32(0);
+    *(unsigned int*)(out_buff+4) = BIG_ENDIAN_32(0);
+    *(unsigned int*)(out_buff+8) = BIG_ENDIAN_32(0);
+    sizeCheck = fwrite(out_buff, 1, 12, foutput);
+    if (sizeCheck!=(size_t)(12)) EXIT_WITH_FATALERROR_OUTPUT("Write error : cannot write end of stream");
+    compressedfilesize += 12;
+
+    // >>>> FOOTER <<<<
+    free(headerBuffer);
+    header_size = FOURMC_FOOTERSIZE(blockIndexesCount);
+    headerBuffer = (char*)malloc(header_size);
+    *(unsigned int*)(headerBuffer+0) = BIG_ENDIAN_32((unsigned int)header_size); // footer size
+    *(unsigned int*)(headerBuffer+4) = BIG_ENDIAN_32(1); // version
+    for (bi=0; bi<blockIndexesCount; ++bi) {
+        unsigned int blockDelta;
+        blockDelta = (unsigned int)(bi==0 ? ( blockIndexes[bi] ) : (blockIndexes[bi] - blockIndexes[bi-1]));
+        *(unsigned long long*)(headerBuffer+8+(bi*4)) = BIG_ENDIAN_32(blockDelta);
+        CONSOLE_PRINT_LEVEL(4, " * Block #%u at delta %u\n", bi, blockDelta);
+    }
+    *(unsigned int*)(headerBuffer+8+(blockIndexesCount*4))   = BIG_ENDIAN_32((unsigned int)header_size); // footer size
+    *(unsigned int*)(headerBuffer+8+(blockIndexesCount*4)+4) = BIG_ENDIAN_32(FOURMZ_MAGICNUMBER); // footer size
+    checkbits = XXH32(headerBuffer, header_size-4, 0);
+    *(unsigned int*)(headerBuffer+8+(blockIndexesCount*4)+8) = BIG_ENDIAN_32(checkbits); // footer size
+
+    sizeCheck = fwrite(headerBuffer, 1, header_size, foutput);
+    if (sizeCheck!=(size_t)(header_size)) EXIT_WITH_FATALERROR_OUTPUT("Write error : cannot write end of stream");
+    compressedfilesize += header_size;
+
+    // Close & Free
+    free(in_buff);
+    free(out_buff);
+    free(headerBuffer);
+    fclose(finput);
+    fclose(foutput);
+    free(blockIndexes);
+
+    // Final Status
+    end = clock();
+    CONSOLE_PRINT_LEVEL(2, "\r%79s\r", "");
+    CONSOLE_PRINT_LEVEL(2, "Compressed (%s) %llu bytes into %llu bytes ==> %.2f%% (Ratio=%.3f)\n",
+        compressionLevel<=1?"fast":(compressionLevel==2?"medium":(compressionLevel==3?"high":"ultra")),
+        (unsigned long long) filesize, (unsigned long long) compressedfilesize, (double)compressedfilesize/filesize*100,
+        (double)100.0/((double)compressedfilesize/filesize*100));
+
+    {
+        double seconds = (double)(end - start)/CLOCKS_PER_SEC;
+        CONSOLE_PRINT_LEVEL(4, "Done in %.2f s ==> %.2f MB/s\n", seconds, (double)filesize / seconds / 1024 / 1024);
+    }
+
+    return 0;
+}
+
 /* ********************************************************************* */
 /* ********************** LZ4 File / Stream decoding ******************* */
 /* ********************************************************************* */
@@ -537,6 +706,155 @@ static unsigned long long decodeFourMC(int displayLevel, FILE* finput, FILE* fou
     return filesize;
 }
 
+static unsigned long long decodeFourMZ(int displayLevel, FILE* finput, FILE* foutput)
+{
+    unsigned long long filesize = 0;
+    char* in_buff;
+    size_t in_buff_size=0, out_buff_size=0;
+    char* out_buff;
+    char * descriptor;
+    size_t nbReadBytes;
+    int decodedBytes=0;
+    size_t sizeCheck;
+	unsigned int footerSize, checksum;
+
+    descriptor = (char*)malloc(FOURMC_HEADERSIZE*2); // will be used for file header(12), block header(12), others(<12)
+
+    // Decode stream descriptor
+    *(unsigned int*)(descriptor) = BIG_ENDIAN_32(FOURMZ_MAGICNUMBER); // magic
+
+    nbReadBytes = fread(descriptor+4, 1, FOURMC_HEADERSIZE-4, finput);
+    if (nbReadBytes != (FOURMC_HEADERSIZE-4)) EXIT_WITH_FATALERROR_CONTENT("Unreadable header");
+    {
+        unsigned int version       = BIG_ENDIAN_32(*(unsigned int*)(descriptor+4));
+        unsigned int checkSum      = BIG_ENDIAN_32(*(unsigned int*)(descriptor+8));
+        unsigned int calcCS        = XXH32(descriptor, 8, 0);
+        if (version != 1)       EXIT_WITH_FATALERROR_CONTENT("Wrong version number");
+        if (checkSum!=calcCS)   EXIT_WITH_FATALERROR_CONTENT("Wrong header checksum");
+    }
+
+    // Allocate Memory
+    {
+        in_buff_size = FOURMC_BLOCKSIZE;
+        out_buff_size = FOURMC_BLOCKSIZE;
+        in_buff  = (char*)malloc(in_buff_size);
+        out_buff = (char*)malloc(out_buff_size);
+        if (!in_buff || !out_buff) EXIT_WITH_FATALERROR("Allocation error : not enough memory");
+    }
+
+    /**
+        Uncompressed size:    4 bytes
+        Compressed size:    4 bytes, if compressed size==uncompressed size, then the data is stored as plain
+        Checksum:            4 bytes, calculated on the compressed data
+     */
+
+    // Main Loop
+    while (1)
+    {
+        char* blockHeader = descriptor;
+        unsigned int uncompressedSize, compressedSize, blockCheckSum;
+
+        // Block Size
+        nbReadBytes = fread(blockHeader, 1, 12, finput);
+        if( nbReadBytes != 12 ) EXIT_WITH_FATALERROR_INPUT("Read error : cannot read next block size");
+
+        uncompressedSize = BIG_ENDIAN_32(*(unsigned int*)(blockHeader+0));
+        compressedSize = BIG_ENDIAN_32(*(unsigned int*)(blockHeader+4));
+        blockCheckSum = BIG_ENDIAN_32(*(unsigned int*)(blockHeader+8));
+
+        if (uncompressedSize==0 && compressedSize==0 && blockCheckSum==0) break;
+
+        if (compressedSize>FOURMC_BLOCKSIZE) {
+            EXIT_WITH_FATALERROR_CONTENT("Read error: block size beyond 4MB limit");
+        }
+
+        if ((in_buff_size < compressedSize)) {
+            free(in_buff);
+            while (in_buff_size < compressedSize) {
+                in_buff_size*=2;
+            }
+            in_buff  = (char*)malloc(in_buff_size);
+        }
+
+        // Read Block
+        nbReadBytes = fread(in_buff, 1, compressedSize, finput);
+        if( nbReadBytes != compressedSize ) EXIT_WITH_FATALERROR_INPUT("Read error : cannot read data block" );
+
+        // Check Block
+        if (uncompressedSize==compressedSize) // uncompressed!
+        {
+            checksum = XXH32(in_buff, compressedSize, 0);
+            if (checksum != blockCheckSum) EXIT_WITH_FATALERROR_CONTENT("Error : invalid block checksum detected");
+            sizeCheck = fwrite(in_buff, 1, uncompressedSize, foutput);
+            if (sizeCheck != (size_t)uncompressedSize) EXIT_WITH_FATALERROR_OUTPUT("Write error : cannot write data block");
+            filesize += uncompressedSize;
+        }
+        else // compressed block
+        {
+            checksum = XXH32(in_buff, compressedSize, 0);
+            if (checksum != blockCheckSum) EXIT_WITH_FATALERROR_CONTENT("Error : invalid block checksum detected");
+
+            if ((out_buff_size < uncompressedSize)) {
+                free(out_buff);
+
+                if (uncompressedSize>FOURMC_BLOCKSIZE) {
+                    EXIT_WITH_FATALERROR_CONTENT("Read error: uncompressed block size beyond 4MB limit");
+                }
+
+                while (out_buff_size < uncompressedSize) {
+                    out_buff_size*=2;
+                }
+                out_buff  = (char*)malloc(out_buff_size);
+            }
+
+            decodedBytes = ZSTD_decompress(out_buff, uncompressedSize, in_buff, compressedSize);
+
+            if (decodedBytes < 0) EXIT_WITH_FATALERROR_CONTENT("Decoding Failed ! Corrupted input detected !");
+            filesize += decodedBytes;
+
+            sizeCheck = fwrite(out_buff, 1, decodedBytes, foutput);
+            if (sizeCheck != (size_t)decodedBytes) EXIT_WITH_FATALERROR_OUTPUT("Write error : cannot write decoded block\n");
+        }
+    }
+
+    // read and decode footer
+    nbReadBytes = fread(descriptor, 1, 4, finput);
+    if (nbReadBytes != 4) EXIT_WITH_FATALERROR("Unreadable footer");
+    footerSize = BIG_ENDIAN_32(*(unsigned int*)(descriptor));
+    if ((in_buff_size < footerSize)) {
+        free(in_buff);
+        in_buff_size = footerSize;
+        in_buff  = (char*)malloc(in_buff_size);
+    }
+    nbReadBytes = fread(in_buff+4, 1, footerSize-4, finput);
+    if (nbReadBytes != (footerSize-4) ) EXIT_WITH_FATALERROR_INPUT("Read error : cannot read footer" );
+    *(unsigned int*)(in_buff) = *(unsigned int*)(descriptor);
+
+    // checksum
+    checksum = XXH32(in_buff, footerSize-4, 0);
+    if (checksum != BIG_ENDIAN_32(*(unsigned int*)(in_buff+footerSize-4))) EXIT_WITH_FATALERROR_CONTENT("Error : invalid footer checksum detected");
+
+    if ( BIG_ENDIAN_32(*(unsigned int*)(in_buff+4)) != 1) // check footer version
+        EXIT_WITH_FATALERROR_CONTENT("Read error : unsupported footer version" );
+
+    if (displayLevel>=3) {
+        unsigned long long absOffset=0;
+        unsigned int i, totalBlockIndexes = (footerSize-20)/4;
+        CONSOLE_PRINT_LEVEL(3, "\nBlock index %u entries:\n", totalBlockIndexes);
+        for (i=0; i<totalBlockIndexes; ++i) {
+            unsigned int delta = BIG_ENDIAN_32(*(unsigned int*)(in_buff+8+i*4));
+            absOffset += delta;
+            CONSOLE_PRINT_LEVEL(3, " * Block #%u at %llu (+%u)\n", i, absOffset, delta);
+        }
+    }
+
+    // Free
+    free(descriptor);
+    free(in_buff);
+    free(out_buff);
+
+    return filesize;
+}
 
 /**
  * Generic implementation like LZ4 stream, but in the end we just have 1 format atm.
@@ -556,6 +874,23 @@ static unsigned long long selectDecoder(int displayLevel, FILE* finput,  FILE* f
 
     return decodeFourMC(displayLevel, finput, foutput);
 }
+
+static unsigned long long selectZstdDecoder(int displayLevel, FILE* finput,  FILE* foutput)
+{
+    unsigned int magicNumber;
+    size_t nbReadBytes;
+
+    // Check Archive Header
+    nbReadBytes = fread(&magicNumber, 1, MAGICNUMBER_SIZE, finput);
+    if (nbReadBytes==0) return 0;                  // EOF
+    if (nbReadBytes != MAGICNUMBER_SIZE) EXIT_WITH_FATALERROR_CONTENT("Unrecognized header : Magic Number unreadable");
+    magicNumber = BIG_ENDIAN_32(magicNumber);
+
+    if (magicNumber != FOURMZ_MAGICNUMBER) EXIT_WITH_FATALERROR_CONTENT("Unrecognized header : not a 4mc file");
+
+    return decodeFourMZ(displayLevel, finput, foutput);
+}
+
 
 
 int fourMcDecompressFileName(int displayLevel, int overwrite, char* input_filename, char* output_filename)
@@ -593,3 +928,37 @@ int fourMcDecompressFileName(int displayLevel, int overwrite, char* input_filena
     return 0;
 }
 
+int fourMZDecompressFileName(int displayLevel, int overwrite, char* input_filename, char* output_filename)
+{
+    unsigned long long filesize = 0, decodedSize=0;
+    FILE* finput;
+    FILE* foutput;
+    clock_t start, end;
+
+    // Init
+    start = clock();
+    openIOFileHandles(displayLevel, overwrite, input_filename, output_filename, &finput, &foutput);
+
+    // Loop over multiple streams
+    do
+    {
+        decodedSize = selectZstdDecoder(displayLevel, finput, foutput);
+        filesize += decodedSize;
+    } while (decodedSize);
+
+    // Final Status
+    end = clock();
+    CONSOLE_PRINT_LEVEL(2, "\r%79s\r", "");
+    CONSOLE_PRINT_LEVEL(2, "Successfully decoded %llu bytes \n", filesize);
+    {
+        double seconds = (double)(end - start)/CLOCKS_PER_SEC;
+        CONSOLE_PRINT_LEVEL(4, "Done in %.2f s ==> %.2f MB/s\n", seconds, (double)filesize / seconds / 1024 / 1024);
+    }
+
+    // Close
+    fclose(finput);
+    fclose(foutput);
+
+    // Error status = OK
+    return 0;
+}

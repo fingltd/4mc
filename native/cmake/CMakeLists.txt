@@ -1,6 +1,6 @@
 PROJECT(4MC C)
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "4mc Four More Compression")
-set(CPACK_PACKAGE_VERSION_MAJOR 1)
+set(CPACK_PACKAGE_VERSION_MAJOR 2)
 set(CPACK_PACKAGE_VERSION_MINOR 0)
 set(CPACK_PACKAGE_VERSION_PATCH 0)
 set(VERSION_STRING	" \"${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}\" ")
@@ -24,10 +24,12 @@ if(UNIX AND NOT APPLE AND BUILD_LIBS)
 endif()
 
 set(LZ4_DIR ../lz4/)
+set(ZSTD_DIR ../zstd/)
 set(PRG_DIR ../)
 set(LZ4_SRCS ${LZ4_DIR}xxhash.h ${LZ4_DIR}xxhash.c ${LZ4_DIR}lz4.c ${LZ4_DIR}lz4hc.c ${LZ4_DIR}lz4.h ${LZ4_DIR}lz4hc.h ${LZ4_DIR}lz4mc.c ${LZ4_DIR}lz4mc.h)
+set(ZSTD_FILES ${ZSTD_DIR}common/*.c ${ZSTD_DIR}compress/*.c ${ZSTD_DIR}decompress/*.c ${ZSTD_DIR}dictBuilder/*.c
 set(4MC_SRCS ${PRG_DIR}4mccli.c ${PRG_DIR}4mc.c)
-set(HADOOP4MC_SRCS ${PRG_DIR}jniCompressor.c ${PRG_DIR}jniDecompressor.c)
+set(HADOOP4MC_SRCS ${PRG_DIR}jniCompressor.c ${PRG_DIR}jniDecompressor.c ${PRG_DIR}jniZstdCompressor.c ${PRG_DIR}jniZstdDecompressor.c)
 
 if(NOT WIN32)
 	add_definitions(-O3)

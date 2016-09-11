@@ -31,23 +31,33 @@
   You can contact LZ4 lib author at :
       - LZ4 source repository : http://code.google.com/p/lz4/
 **/
+package com.hadoop.compression.fourmc;
+
+import org.apache.hadoop.io.compress.Compressor;
+
+/**
+ * Handles 4mz file format, using ZSTD High compression.
+ * Decompression is the same, as usual.
+ */
+public class FourMzHighCodec extends FourMzCodec {
+
+    @Override
+    public Class<? extends Compressor> getCompressorType() {
+        if (!isNativeLoaded(getConf())) {
+            throw new RuntimeException("native hadoop-4mc library not available");
+        }
+        return ZstdHighCompressor.class;
+    }
+
+    @Override
+    public Compressor createCompressor() {
+        assert getConf() != null : "Configuration cannot be null! You must call setConf() before creating a compressor.";
+        if (!isNativeLoaded(getConf())) {
+            throw new RuntimeException("native hadoop-4mc library not available");
+        }
+
+        return new ZstdHighCompressor(getCompressionBlockSize());
+    }
 
 
-int fourMCcompressFilename  (int displayLevel, int overwrite, char* input_filename, char* output_filename, int compressionlevel);
-int fourMcDecompressFileName(int displayLevel, int overwrite, char* input_filename, char* output_filename);
-
-
-int fourMZcompressFilename  (int displayLevel, int overwrite, char* input_filename, char* output_filename, int compressionlevel);
-int fourMZDecompressFileName(int displayLevel, int overwrite, char* input_filename, char* output_filename);
-
-// null device, stdin and stdout, used by both cli and 4mc
-
-#define NULL_OUTPUT "null"
-static char stdinmark[] = "stdin";
-static char stdoutmark[] = "stdout";
-#ifdef _WIN32
-static char nulmark[] = "nul";
-#else
-static char nulmark[] = "/dev/null";
-#endif
-
+}

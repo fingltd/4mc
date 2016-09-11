@@ -14,6 +14,7 @@ CFLAGS?= -O3
 #CFLAGS?= -ggdb
 CFLAGS+= -std=c99 -Wall -Wextra -Wundef -Wshadow -Wstrict-prototypes -DLZ4_VERSION=\"$(RELEASE)\"
 FLAGS= -I$(JAVA_HOME)/include -I$(JAVA_HOME)/include/linux -I$(JAVA_HOME)/include/darwin $(CPPFLAGS) $(CFLAGS) $(LDFLAGS)
+CPPFLAGS= -I./zstd -I./zstd/common
 
 BINDIR=$(PREFIX)/bin
 MANDIR=$(PREFIX)/share/man/man1
@@ -23,6 +24,8 @@ LIBVER_MAJOR=1
 LIBVER_MINOR=1
 LIBVER_PATCH=0
 LIBVER=$(LIBVER_MAJOR).$(LIBVER_MINOR).$(LIBVER_PATCH)
+
+ZSTD_FILES := zstd/common/*.c zstd/compress/*.c zstd/decompress/*.c zstd/dictBuilder/*.c
 
 ifeq ($(shell uname), Darwin)
 	SHARED_EXT = dylib
@@ -50,10 +53,10 @@ default: 4mc
 
 all: 4mc libhadoop-4mc
 
-4mc: lz4/lz4.c lz4/lz4hc.c lz4/lz4mc.c lz4/xxhash.c 4mc.c 4mccli.c
+4mc: lz4/lz4.c lz4/lz4hc.c lz4/lz4mc.c lz4/xxhash.c $(ZSTD_FILES) 4mc.c 4mccli.c 
 	$(CC)      $(FLAGS) $^ -o $@$(EXT)
 
-libhadoop-4mc: lz4/lz4.c lz4/lz4hc.c lz4/lz4mc.c lz4/xxhash.c jniDecompressor.c jniCompressor.c
+libhadoop-4mc: lz4/lz4.c lz4/lz4hc.c lz4/lz4mc.c lz4/xxhash.c $(ZSTD_FILES) jniDecompressor.c jniCompressor.c jniZstdDecompressor.c jniZstdCompressor.c 
 	@$(CC) $(FLAGS) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) -shared $^ -fPIC $(SONAME_FLAGS) -o $@.$(SHARED_EXT_VER)
 
 

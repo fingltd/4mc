@@ -31,23 +31,21 @@
   You can contact LZ4 lib author at :
       - LZ4 source repository : http://code.google.com/p/lz4/
 **/
+package com.hadoop.mapreduce;
 
+import org.apache.hadoop.io.LongWritable;
+import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapreduce.InputSplit;
+import org.apache.hadoop.mapreduce.RecordReader;
+import org.apache.hadoop.mapreduce.TaskAttemptContext;
 
-int fourMCcompressFilename  (int displayLevel, int overwrite, char* input_filename, char* output_filename, int compressionlevel);
-int fourMcDecompressFileName(int displayLevel, int overwrite, char* input_filename, char* output_filename);
-
-
-int fourMZcompressFilename  (int displayLevel, int overwrite, char* input_filename, char* output_filename, int compressionlevel);
-int fourMZDecompressFileName(int displayLevel, int overwrite, char* input_filename, char* output_filename);
-
-// null device, stdin and stdout, used by both cli and 4mc
-
-#define NULL_OUTPUT "null"
-static char stdinmark[] = "stdin";
-static char stdoutmark[] = "stdout";
-#ifdef _WIN32
-static char nulmark[] = "nul";
-#else
-static char nulmark[] = "/dev/null";
-#endif
-
+/**
+ * Files are broken into lines. Either linefeed or carriage-return are used to signal end of line.
+ * Keys are the position in the file, and values are the line of text.
+ */
+public class FourMzTextInputFormat extends FourMcInputFormat {
+    @Override
+    public RecordReader<LongWritable, Text> createRecordReader(InputSplit split, TaskAttemptContext taskAttempt) {
+        return new FourMzLineRecordReader();
+    }
+}

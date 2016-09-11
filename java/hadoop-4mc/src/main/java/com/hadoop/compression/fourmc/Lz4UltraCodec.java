@@ -55,12 +55,12 @@ public class Lz4UltraCodec implements Configurable, CompressionCodec {
 
     private Configuration conf;
 
-    @Override
+    
     public void setConf(Configuration conf) {
         this.conf = conf;
     }
 
-    @Override
+    
     public Configuration getConf() {
         return conf;
     }
@@ -140,7 +140,7 @@ public class Lz4UltraCodec implements Configurable, CompressionCodec {
         return Lz4Decompressor.class;
     }
 
-    @Override
+    
     public Decompressor createDecompressor() {
         if (!isNativeLoaded(conf)) {
             throw new RuntimeException("native hadoop-4mc library not available");
@@ -154,7 +154,7 @@ public class Lz4UltraCodec implements Configurable, CompressionCodec {
      *
      * @return the extension including the '.'
      */
-    @Override
+    
     public String getDefaultExtension() {
         return ".lz4_uc";
     }

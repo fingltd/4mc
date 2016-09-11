@@ -54,4 +54,11 @@ public class FourMcInputFormatUtil {
       return filename.endsWith(FourMcCodec.FOURMC_DEFAULT_EXTENSION);
     }
 
+    /**
+     * Just checks for file extension to be .4mz
+     */
+    public static boolean is4mzFile(String filename) {
+        return filename.endsWith(FourMzCodec.FOURMZ_DEFAULT_EXTENSION);
+    }
+
 }

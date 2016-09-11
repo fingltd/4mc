@@ -34,7 +34,7 @@
 package com.hadoop.compression.fourmc;
 
 /**
- * Provides ZSTD compression at UC: Ultra Compression (ZSTD HC level 19).
+ * Provides ZSTD compression at UC: Ultra Compression (ZSTD HC level 12).
  */
 public class ZstdUltraCompressor extends Lz4Compressor {
 

@@ -98,10 +98,10 @@ Please remember once again that compression level in both ZSTD and LZ4 is seamle
 
 ## Java examples
 
-In java examples folder you can find 2 examples:
-* **text/TestTextInput.java** : this example is a perfect skeleton to start working with 4mc files on your text files
-* **elephant-bird/FourMcEbProtoInputFormat.java** : this adapter bridges EB frameworking letting you read 4mc files containing binary protobuf objects of your own type
-* **elephant-bird/FourMcEbProtoOutputFormat.java** : this adapter bridges EB frameworking letting you write 4mc files containing binary protobuf objects of your own type
+The maven module **examples** is a separate module providing several usage examples with hadoop Map/Reduce and
+also with Spark. Flink examples will be added soon, but it's straightforward like Spark.
+As you can see in the examples, 4mc can be used with text input/output but also it can leverge **ElephantBird**
+framework to process protobuf encoded binary data.
 
 ## How To Contribute
 

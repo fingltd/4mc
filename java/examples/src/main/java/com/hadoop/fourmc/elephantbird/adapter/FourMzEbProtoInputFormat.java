@@ -1,5 +1,8 @@
+package com.hadoop.fourmc.elephantbird.adapter;
+
 import com.google.protobuf.Message;
 import com.hadoop.mapreduce.FourMcInputFormat;
+import com.hadoop.mapreduce.FourMzInputFormat;
 import com.twitter.elephantbird.util.HadoopCompat;
 import com.twitter.elephantbird.mapreduce.input.LzoProtobufBlockRecordReader;
 import com.twitter.elephantbird.mapreduce.io.BinaryWritable;

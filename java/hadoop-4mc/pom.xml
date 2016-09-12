@@ -1,6 +1,12 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
+     <parent>
+         <groupId>com.hadoop.fourmc</groupId>
+         <artifactId>parent</artifactId>
+         <version>1.0</version>
+     </parent>
+
     <modelVersion>4.0.0</modelVersion>
 
     <properties>
@@ -20,7 +26,7 @@
     <name>4mc</name>
     <url>https://github.com/carlomedas/4mc</url>
     <description>
-        4mc - Four More Compression, LZ4 power unleashed in hadoop.
+        4mc - Four More Compression, ZSTD and LZ4 power unleashed in hadoop/spark/flink.
     </description>
 
     <licenses>
@@ -85,4 +91,3 @@
     </dependencies>
 
 </project>
-

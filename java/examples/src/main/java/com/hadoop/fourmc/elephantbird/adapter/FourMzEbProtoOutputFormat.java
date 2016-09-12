@@ -1,3 +1,5 @@
+package com.hadoop.fourmc.elephantbird.adapter;
+
 import com.google.protobuf.Message;
 import com.hadoop.compression.fourmc.ZstdCodec;
 import com.twitter.elephantbird.mapreduce.io.ProtobufBlockWriter;
@@ -84,7 +86,7 @@ public class FourMzEbProtoOutputFormat<M extends Message> extends FileOutputForm
         String extension = "";
 
         Class<? extends CompressionCodec> codecClass =
-                getOutputCompressorClass(job, Lz4Codec.class);
+                getOutputCompressorClass(job, ZstdCodec.class);
         codec = (CompressionCodec) ReflectionUtils.newInstance(codecClass, conf);
         extension = codec.getDefaultExtension();
 

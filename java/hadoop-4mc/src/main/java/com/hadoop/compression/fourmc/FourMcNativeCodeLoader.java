@@ -33,13 +33,13 @@
 **/
 package com.hadoop.compression.fourmc;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 public class FourMcNativeCodeLoader {
     private static final Log LOG = LogFactory.getLog(FourMcNativeCodeLoader.class);

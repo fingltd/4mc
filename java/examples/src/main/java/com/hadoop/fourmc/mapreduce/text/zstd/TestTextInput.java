@@ -1,7 +1,9 @@
 package com.hadoop.fourmc.mapreduce.text.zstd;
 
-import com.hadoop.compression.fourmc.*;
-
+import com.hadoop.compression.fourmc.FourMzCodec;
+import com.hadoop.compression.fourmc.FourMzHighCodec;
+import com.hadoop.compression.fourmc.FourMzMediumCodec;
+import com.hadoop.compression.fourmc.FourMzUltraCodec;
 import com.hadoop.mapreduce.FourMzTextInputFormat;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;

@@ -1,6 +1,9 @@
-package com.hadoop.fourmc.protobuf.lz4;
+package com.hadoop.fourmc.mapreduce.protobuf.lz4;
 
-import com.hadoop.compression.fourmc.*;
+import com.hadoop.compression.fourmc.FourMcCodec;
+import com.hadoop.compression.fourmc.FourMcHighCodec;
+import com.hadoop.compression.fourmc.FourMcMediumCodec;
+import com.hadoop.compression.fourmc.FourMcUltraCodec;
 import com.hadoop.fourmc.elephantbird.adapter.FourMcEbProtoInputFormat;
 import com.hadoop.fourmc.elephantbird.adapter.FourMcEbProtoOutputFormat;
 import com.hadoop.fourmc.protobuf.USER;
@@ -13,7 +16,6 @@ import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
-import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 
 import java.io.IOException;
 

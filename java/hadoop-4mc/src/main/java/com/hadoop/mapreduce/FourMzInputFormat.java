@@ -33,7 +33,6 @@
 **/
 package com.hadoop.mapreduce;
 
-import com.hadoop.compression.fourmc.FourMzBlockIndex;
 import com.hadoop.compression.fourmc.FourMcInputFormatUtil;
 import com.hadoop.compression.fourmc.FourMzBlockIndex;
 import com.hadoop.compression.fourmc.util.HadoopUtils;

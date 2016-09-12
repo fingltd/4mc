@@ -1,4 +1,4 @@
-package com.hadoop.fourmc.protobuf.zstd;
+package com.hadoop.fourmc.mapreduce.protobuf.zstd;
 
 import com.hadoop.compression.fourmc.FourMzCodec;
 import com.hadoop.compression.fourmc.FourMzHighCodec;

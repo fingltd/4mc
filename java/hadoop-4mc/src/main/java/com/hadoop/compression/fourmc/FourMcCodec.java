@@ -33,7 +33,10 @@
 **/
 package com.hadoop.compression.fourmc;
 
-import org.apache.hadoop.io.compress.*;
+import org.apache.hadoop.io.compress.CompressionInputStream;
+import org.apache.hadoop.io.compress.CompressionOutputStream;
+import org.apache.hadoop.io.compress.Compressor;
+import org.apache.hadoop.io.compress.Decompressor;
 
 import java.io.IOException;
 import java.io.InputStream;

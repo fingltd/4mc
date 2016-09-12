@@ -34,10 +34,6 @@
 package com.hadoop.mapreduce;
 
 import com.hadoop.compression.fourmc.util.HadoopUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import org.apache.hadoop.conf.Configurable;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FileSystem;
@@ -52,9 +48,7 @@ import org.apache.hadoop.mapreduce.TaskAttemptContext;
 import org.apache.hadoop.mapreduce.lib.input.FileSplit;
 import org.apache.hadoop.util.LineReader;
 
-import java.io.EOFException;
 import java.io.IOException;
-import java.io.InputStream;
 
 
 /**

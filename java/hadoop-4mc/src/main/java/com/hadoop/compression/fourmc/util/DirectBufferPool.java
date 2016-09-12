@@ -1,8 +1,5 @@
 package com.hadoop.compression.fourmc.util;
 
-import org.apache.hadoop.util.hash.Hash;
-
-import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.LinkedList;

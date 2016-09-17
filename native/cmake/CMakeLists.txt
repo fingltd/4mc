@@ -43,7 +43,8 @@ set(ZSTD_SRCS ${ZSTD_DIR}common/entropy_common.c
 		${ZSTD_DIR}dictBuilder/zdict.c
 )
 set(4MC_SRCS ${PRG_DIR}4mccli.c ${PRG_DIR}4mc.c)
-set(HADOOP4MC_SRCS ${PRG_DIR}jniCompressor.c ${PRG_DIR}jniDecompressor.c ${PRG_DIR}jniZstdCompressor.c ${PRG_DIR}jniZstdDecompressor.c)
+set(HADOOP4MC_SRCS ${PRG_DIR}jniCompressor.c ${PRG_DIR}jniDecompressor.c ${PRG_DIR}jniZstdCompressor.c ${PRG_DIR}jniZstdDecompressor.c
+    ${PRG_DIR}jniZstd.c ${PRG_DIR}jniZStreamCompressor.c ${PRG_DIR}jniZStreamDecompressor.c)
 
 if(NOT WIN32)
 	add_definitions(-O3)

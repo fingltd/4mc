@@ -56,7 +56,7 @@ all: 4mc libhadoop-4mc
 4mc: lz4/lz4.c lz4/lz4hc.c lz4/lz4mc.c lz4/xxhash.c $(ZSTD_FILES) 4mc.c 4mccli.c 
 	$(CC)      $(FLAGS) $^ -o $@$(EXT)
 
-libhadoop-4mc: lz4/lz4.c lz4/lz4hc.c lz4/lz4mc.c lz4/xxhash.c $(ZSTD_FILES) jniDecompressor.c jniCompressor.c jniZstdDecompressor.c jniZstdCompressor.c 
+libhadoop-4mc: lz4/lz4.c lz4/lz4hc.c lz4/lz4mc.c lz4/xxhash.c $(ZSTD_FILES) jniDecompressor.c jniCompressor.c jniZstdDecompressor.c jniZstdCompressor.c jniZstd.c jniZStreamCompressor.c jniZStreamDecompressor.c
 	@$(CC) $(FLAGS) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) -shared $^ -fPIC $(SONAME_FLAGS) -o $@.$(SHARED_EXT_VER)
 
 

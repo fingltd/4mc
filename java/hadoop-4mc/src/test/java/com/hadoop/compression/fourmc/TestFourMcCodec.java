@@ -13,6 +13,7 @@ import org.apache.hadoop.io.DataOutputBuffer;
 import org.apache.hadoop.io.compress.CompressionCodec;
 import org.apache.hadoop.io.compress.CompressionInputStream;
 import org.apache.hadoop.io.compress.CompressionOutputStream;
+import org.apache.hadoop.io.RandomDatum;
 import org.apache.hadoop.util.ReflectionUtils;
 
 public class TestFourMcCodec extends TestCase{

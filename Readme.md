@@ -131,7 +131,6 @@ You may use `sc.textFile` or any other method to load the data. However, the dat
 data = sc.textFile(filepath)
 data.getNumPartitions()
 # -> 1
-data.take(1)
 ```
 
 

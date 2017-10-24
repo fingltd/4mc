@@ -43,7 +43,7 @@ import org.apache.hadoop.mapreduce.TaskAttemptContext;
  * Files are broken into lines. Either linefeed or carriage-return are used to signal end of line.
  * Keys are the position in the file, and values are the line of text.
  */
-public class FourMzTextInputFormat extends FourMcInputFormat {
+public class FourMzTextInputFormat extends FourMzInputFormat<LongWritable, Text> {
     @Override
     public RecordReader<LongWritable, Text> createRecordReader(InputSplit split, TaskAttemptContext taskAttempt) {
         return new FourMzLineRecordReader();

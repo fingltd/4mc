@@ -134,6 +134,9 @@ public class ZstdDecompressor implements Decompressor {
         if (!isCurrentBlockUncompressed()) {
             compressedDirectBufLen = Math.min(userBufLen, directBufferSize);
 
+            if (compressedDirectBuf == null) {
+                compressedDirectBuf = DirectBufferPool.getInstance().allocate(directBufferSize);
+            }
             compressedDirectBuf.rewind();
             ((ByteBuffer) compressedDirectBuf).put(userBuf, userBufOff,
                     compressedDirectBufLen);

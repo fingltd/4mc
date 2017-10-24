@@ -231,6 +231,9 @@ public class ZstdDecompressor implements Decompressor {
     public synchronized void reset() {
         finished = false;
         compressedDirectBufLen = 0;
+        if (uncompressedDirectBuf == null) {
+            uncompressedDirectBuf = DirectBufferPool.getInstance().allocate(directBufferSize);
+        }
         uncompressedDirectBuf.limit(directBufferSize);
         uncompressedDirectBuf.position(directBufferSize);
         userBufOff = userBufLen = 0;

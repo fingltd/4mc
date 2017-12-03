@@ -1,3 +1,4 @@
+#  [![Build Status](https://travis-ci.org/carlomedas/4mc.svg?branch=master)](https://travis-ci.org/carlomedas/4mc)
 # 4mc - Four More Compression
 
 ## About

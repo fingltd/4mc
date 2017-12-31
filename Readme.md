@@ -104,6 +104,37 @@ also with Spark. Flink examples will be added soon, but it's straightforward lik
 As you can see in the examples, 4mc can be used with text input/output but also it can leverge **ElephantBird**
 framework to process protobuf encoded binary data.
 
+## PySpark Example
+
+Use `sc.newAPIHadoopFile` to load your data. This will leverage the splittable feature of 4mc and load your data into many partitions.
+
+```python
+filepath = 'gs://data/foo.4mc'
+
+# This will read the file and partition it as it loads
+data = sc.newAPIHadoopFile(
+    filepath
+,   'com.hadoop.mapreduce.FourMcTextInputFormat'
+,   'org.apache.hadoop.io.LongWritable'
+,   'org.apache.hadoop.io.Text'
+)
+data.getNumPartitions()
+# -> 24
+
+# This is what the RDD looks like after it's loaded
+data.take(1)
+# -> [(0, 'first line')]
+```
+
+You may use `sc.textFile` or any other method to load the data. However, the data will be loaded in one partition only.
+
+```python
+data = sc.textFile(filepath)
+data.getNumPartitions()
+# -> 1
+```
+
+
 ## How To Contribute
 
 Bug fixes, features, and documentation improvements are welcome!

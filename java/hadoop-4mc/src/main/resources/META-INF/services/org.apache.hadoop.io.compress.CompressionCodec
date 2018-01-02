@@ -1,0 +1,12 @@
+com.hadoop.compression.fourmc.FourMcCodec
+com.hadoop.compression.fourmc.FourMcHighCodec
+com.hadoop.compression.fourmc.FourMcMediumCodec
+com.hadoop.compression.fourmc.FourMcUltraCodec
+com.hadoop.compression.fourmc.FourMzCodec
+com.hadoop.compression.fourmc.FourMzHighCodec
+com.hadoop.compression.fourmc.FourMzMediumCodec
+com.hadoop.compression.fourmc.FourMzUltraCodec
+com.hadoop.compression.fourmc.Lz4Codec
+com.hadoop.compression.fourmc.Lz4HighCodec
+com.hadoop.compression.fourmc.Lz4MediumCodec
+com.hadoop.compression.fourmc.Lz4UltraCodec

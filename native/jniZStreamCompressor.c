@@ -127,7 +127,7 @@ JNIEXPORT jint JNICALL Java_com_hadoop_compression_fourmc_zstd_ZstdStreamCompres
 
     void *dst_buff = (*env)->GetDirectBufferAddress(env, dst);
     if (dst_buff != NULL) {
-      ZSTD_outBuffer output = { dst_buff + dst_offset, dst_size, 0 };
+      ZSTD_outBuffer output = { ((char *)dst_buff) + dst_offset, dst_size, 0 };
       size = ZSTD_endStream((ZSTD_CStream *) stream, &output);
       size_t o_buff_len = dst_offset + output.pos;
       (*env)->SetLongField(env, this, dst_pos_id, output.pos);

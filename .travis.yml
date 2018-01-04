@@ -46,7 +46,7 @@ install:
   - cmake --build . --config Release
   # I guess we need to find a way of making this portable..
   - if [ -f libhadoop-4mc.so ]; then cp libhadoop-4mc.so ../../java/hadoop-4mc/src/main/resources/com/hadoop/compression/fourmc/linux/amd64/libhadoop-4mc.so; fi
-  - if [ -f libhadoop-4mc.dylib ]; then cp libhadoop-4mc.dylib ../../java/hadoop-4mc/src/main/resources/com/hadoop/compression/fourmc/darwin/x86_64/libhadoop-4mc.so; fi
+  - if [ -f libhadoop-4mc.dylib ]; then cp libhadoop-4mc.dylib ../../java/hadoop-4mc/src/main/resources/com/hadoop/compression/fourmc/darwin/x86_64/libhadoop-4mc.dylib; fi
   - cd ../../java
   - mvn -T 2C clean install
 

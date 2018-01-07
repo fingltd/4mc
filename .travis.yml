@@ -26,11 +26,11 @@
 # ---------------------------------------------------------------------------------
 language: java
 
-os:
-  - linux
-
-jdk:
-  - oraclejdk8
+matrix:
+  include:
+    - os: linux
+    - os: osx
+      osx_image: xcode9.2
 
 before_install:
   - sudo hostname "$(hostname | cut -c1-63)"
@@ -39,11 +39,15 @@ before_install:
   - cat ~/.mavenrc
 
 install:
-  - cd native
-  - make all
-  # I guess we need to find a way of making this portable...
-  - cp libhadoop-4mc.so.1.1.0 ../java/hadoop-4mc/src/main/resources/com/hadoop/compression/fourmc/linux/amd64/libhadoop-4mc.so
-  - cd ../java
+  - cd native/cmake
+  # the FindJNI in the Travis image is too old for cmake + jdk8
+  - curl https://raw.githubusercontent.com/Kitware/CMake/master/Modules/FindJNI.cmake >FindJNI.cmake
+  - cmake -DCMAKE_BUILD_TYPE=Release .
+  - cmake --build . --config Release
+  # I guess we need to find a way of making this portable..
+  - if [ -f libhadoop-4mc.so ]; then cp libhadoop-4mc.so ../../java/hadoop-4mc/src/main/resources/com/hadoop/compression/fourmc/linux/amd64/libhadoop-4mc.so; fi
+  - if [ -f libhadoop-4mc.dylib ]; then cp libhadoop-4mc.dylib ../../java/hadoop-4mc/src/main/resources/com/hadoop/compression/fourmc/darwin/x86_64/libhadoop-4mc.dylib; fi
+  - cd ../../java
   - mvn -T 2C clean install
 
 script:

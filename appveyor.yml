@@ -1,0 +1,22 @@
+image:
+  - Visual Studio 2017
+
+branches:
+  only:
+    - master
+    - appveyor
+
+environment:
+  matrix:
+    - BUILD_SYSTEM: CMake
+      GENERATOR: Visual Studio 15 2017 Win64
+      CONFIG_TYPE: Release
+
+
+build_script:
+  - cmake -G "Visual Studio 15 2017 Win64" ./native/cmake/CMakeLists.txt
+  - cmake --build ./native/cmake --config Release -- /property:Prefer32bit=false /p:Platform=x64
+  - cmake -E copy ./native/cmake/Release/hadoop-4mc.dll java/hadoop-4mc/src/main/resources/com/hadoop/compression/fourmc/win32/amd64/libhadoop-4mc.dll
+  - cd java
+  - mvn -T 2C clean install
+  - mvn verify

@@ -5,6 +5,7 @@ set(CPACK_PACKAGE_VERSION_MINOR 0)
 set(CPACK_PACKAGE_VERSION_PATCH 0)
 set(VERSION_STRING	" \"${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}\" ")
 include(CPack)
+include(FindJNI)
 
 cmake_minimum_required (VERSION 2.6)
 INCLUDE (CheckTypeSize)
@@ -22,6 +23,12 @@ if(UNIX AND NOT APPLE AND BUILD_LIBS)
         add_definitions(-fPIC)
     endif()
 endif()
+
+IF (MSVC)
+    # MSVC is logs many inline warnings
+    add_definitions("/wd4710")
+    add_definitions("/wd4711")
+ENDIF()
 
 set(LZ4_DIR ../lz4/)
 set(ZSTD_DIR ../zstd/)

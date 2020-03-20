@@ -1,7 +1,7 @@
 # ##########################################################################
 # 4MC program - Makefile
 # Copyright (C) Carlo Medas 2014 
-# Used LZ4 code - Copyright (C) Yann Collet 2011-2014
+# Used LZ4 code - Copyright (C) Yann Collet 2011-2016
 # ##########################################################################
 # 4mc : Command Line Utility, supporting gzip-like arguments
 # ##########################################################################

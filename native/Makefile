@@ -25,7 +25,8 @@ LIBVER_MINOR=1
 LIBVER_PATCH=0
 LIBVER=$(LIBVER_MAJOR).$(LIBVER_MINOR).$(LIBVER_PATCH)
 
-ZSTD_FILES := zstd/common/*.c zstd/compress/*.c zstd/decompress/*.c zstd/dictBuilder/*.c
+ZSTD_COMMON_FILES = $(filter-out zstd/common/xxhash.c, $(wildcard zstd/common/*.c))
+ZSTD_FILES := $(ZSTD_COMMON_FILES) zstd/compress/*.c zstd/decompress/*.c zstd/dictBuilder/*.c
 
 ifeq ($(shell uname), Darwin)
 	SHARED_EXT = dylib

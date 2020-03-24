@@ -11,47 +11,61 @@ cmake_minimum_required (VERSION 2.6)
 INCLUDE (CheckTypeSize)
 check_type_size("void *" SIZEOF_VOID_P)
 IF( ${SIZEOF_VOID_P} STREQUAL  "8" )
-    set (CMAKE_SYSTEM_PROCESSOR "64bit")
-    MESSAGE( STATUS "64 bit architecture detected size of void * is " ${SIZEOF_VOID_P})
+	set (CMAKE_SYSTEM_PROCESSOR "64bit")
+	MESSAGE( STATUS "64 bit architecture detected size of void * is " ${SIZEOF_VOID_P})
 ENDIF()
 
 option(BUILD_TOOLS "Build the command line tools" ON)
 option(BUILD_LIBS  "Build the JNI native library for hadoop-4mc" ON)
 
 if(UNIX AND NOT APPLE AND BUILD_LIBS)
-    if(CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64")
-        add_definitions(-fPIC)
-    endif()
+	if(CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64")
+		add_definitions(-fPIC)
+	endif()
 endif()
 
 IF (MSVC)
-    # MSVC is logs many inline warnings
-    add_definitions("/wd4710")
-    add_definitions("/wd4711")
+	# MSVC is logs many inline warnings
+	add_definitions("/wd4710")
+	add_definitions("/wd4711")
 ENDIF()
 
 set(LZ4_DIR ../lz4/)
 set(ZSTD_DIR ../zstd/)
 set(PRG_DIR ../)
 set(LZ4_SRCS ${LZ4_DIR}xxhash.h ${LZ4_DIR}xxhash.c ${LZ4_DIR}lz4.c ${LZ4_DIR}lz4hc.c ${LZ4_DIR}lz4.h ${LZ4_DIR}lz4hc.h ${LZ4_DIR}lz4mc.c ${LZ4_DIR}lz4mc.h)
-set(ZSTD_SRCS ${ZSTD_DIR}common/entropy_common.c 
-		${ZSTD_DIR}common/entropy_common.c 
-		${ZSTD_DIR}common/fse_decompress.c 
-		${ZSTD_DIR}common/zstd_common.c 
-		${ZSTD_DIR}common/xxhash.c 
-		${ZSTD_DIR}compress/fse_compress.c 
+set(ZSTD_SRCS ${ZSTD_DIR}common/entropy_common.c
+		${ZSTD_DIR}common/entropy_common.c
+		${ZSTD_DIR}common/error_private.c
+		${ZSTD_DIR}common/fse_decompress.c
+		${ZSTD_DIR}common/pool.c
+		${ZSTD_DIR}common/zstd_common.c
+		#${ZSTD_DIR}common/xxhash.c
+		${ZSTD_DIR}compress/fse_compress.c
+		${ZSTD_DIR}compress/hist.c
 		${ZSTD_DIR}compress/huf_compress.c
-		${ZSTD_DIR}compress/zbuff_compress.c
-		${ZSTD_DIR}compress/zstd_compress.c					
-		${ZSTD_DIR}decompress/huf_decompress.c 
-		${ZSTD_DIR}decompress/zbuff_decompress.c 
-		${ZSTD_DIR}decompress/zstd_decompress.c 
+		${ZSTD_DIR}compress/zstd_compress.c
+		${ZSTD_DIR}compress/zstd_compress_literals.c
+		${ZSTD_DIR}compress/zstd_compress_sequences.c
+		${ZSTD_DIR}compress/zstd_double_fast.c
+		${ZSTD_DIR}compress/zstd_fast.c
+		${ZSTD_DIR}compress/zstd_lazy.c
+		${ZSTD_DIR}compress/zstd_ldm.c
+		${ZSTD_DIR}compress/zstd_opt.c
+		${ZSTD_DIR}decompress/huf_decompress.c
+		${ZSTD_DIR}decompress/zstd_ddict.c
+		${ZSTD_DIR}decompress/zstd_decompress_block.c
+		${ZSTD_DIR}decompress/zstd_decompress.c
+		${ZSTD_DIR}deprecated/zbuff_compress.c
+		${ZSTD_DIR}deprecated/zbuff_decompress.c
+		${ZSTD_DIR}dictBuilder/cover.c
 		${ZSTD_DIR}dictBuilder/divsufsort.c
+		${ZSTD_DIR}dictBuilder/fastcover.c
 		${ZSTD_DIR}dictBuilder/zdict.c
-)
+		)
 set(4MC_SRCS ${PRG_DIR}4mccli.c ${PRG_DIR}4mc.c)
 set(HADOOP4MC_SRCS ${PRG_DIR}jniCompressor.c ${PRG_DIR}jniDecompressor.c ${PRG_DIR}jniZstdCompressor.c ${PRG_DIR}jniZstdDecompressor.c
-    ${PRG_DIR}jniZstd.c ${PRG_DIR}jniZStreamCompressor.c ${PRG_DIR}jniZStreamDecompressor.c)
+		${PRG_DIR}jniZstd.c ${PRG_DIR}jniZStreamCompressor.c ${PRG_DIR}jniZStreamDecompressor.c)
 
 if(NOT WIN32)
 	add_definitions(-O3)
@@ -61,8 +75,8 @@ endif()
 INCLUDE_DIRECTORIES(../zstd ../zstd/common)
 
 if(BUILD_TOOLS)
-    add_executable(4mc ${LZ4_SRCS} ${ZSTD_SRCS} ${4MC_SRCS})
-    install(TARGETS 4mc RUNTIME DESTINATION "bin/")
+	add_executable(4mc ${LZ4_SRCS} ${ZSTD_SRCS} ${4MC_SRCS})
+	install(TARGETS 4mc RUNTIME DESTINATION "bin/")
 endif()
 
 if(BUILD_LIBS)
@@ -73,16 +87,16 @@ if(BUILD_LIBS)
 		INCLUDE_DIRECTORIES(${JNI_INCLUDE_DIRS})
 	else()
 		MESSAGE(FATAL_ERROR "Found JNI: failed")
-	endif()	
-    
-    add_library(hadoop-4mc SHARED ${LZ4_SRCS} ${ZSTD_SRCS} ${HADOOP4MC_SRCS})
-    install(TARGETS 4mc RUNTIME DESTINATION "lib/")
+	endif()
+
+	add_library(hadoop-4mc SHARED ${LZ4_SRCS} ${ZSTD_SRCS} ${HADOOP4MC_SRCS})
+	install(TARGETS 4mc RUNTIME DESTINATION "lib/")
 endif()
 
 #warnings
 
 ADD_DEFINITIONS("-Wall")
-ADD_DEFINITIONS("-DLZ4_VERSION=\"1.2.1\"")
+ADD_DEFINITIONS("-DLZ4_VERSION=\"1.9.2\"")
 INCLUDE_DIRECTORIES (${LZ4_DIR})
 
 

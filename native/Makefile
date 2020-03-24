@@ -1,7 +1,7 @@
 # ##########################################################################
 # 4MC program - Makefile
 # Copyright (C) Carlo Medas 2014 
-# Used LZ4 code - Copyright (C) Yann Collet 2011-2014
+# Used LZ4 code - Copyright (C) Yann Collet 2011-2016
 # ##########################################################################
 # 4mc : Command Line Utility, supporting gzip-like arguments
 # ##########################################################################
@@ -20,12 +20,13 @@ BINDIR=$(PREFIX)/bin
 MANDIR=$(PREFIX)/share/man/man1
 LZ4DIR=..
 
-LIBVER_MAJOR=1
-LIBVER_MINOR=1
+LIBVER_MAJOR=2
+LIBVER_MINOR=0
 LIBVER_PATCH=0
 LIBVER=$(LIBVER_MAJOR).$(LIBVER_MINOR).$(LIBVER_PATCH)
 
-ZSTD_FILES := zstd/common/*.c zstd/compress/*.c zstd/decompress/*.c zstd/dictBuilder/*.c
+ZSTD_COMMON_FILES = $(filter-out zstd/common/xxhash.c, $(wildcard zstd/common/*.c))
+ZSTD_FILES := $(ZSTD_COMMON_FILES) zstd/compress/*.c zstd/decompress/*.c zstd/dictBuilder/*.c
 
 ifeq ($(shell uname), Darwin)
 	SHARED_EXT = dylib

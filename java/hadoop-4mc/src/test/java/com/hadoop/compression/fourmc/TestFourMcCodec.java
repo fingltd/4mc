@@ -29,11 +29,6 @@ public class TestFourMcCodec extends TestCase{
         codecTest(conf, seed, count * 10, "com.hadoop.compression.fourmc.ZstdCodec");
     }
 
-    public void testZstCodec() throws IOException {
-        assertTrue(FourMcNativeCodeLoader.isNativeCodeLoaded());
-        codecTest(conf, seed, count * 10, "com.hadoop.compression.fourmc.ZstCodec");
-    }
-
     private static void codecTest(Configuration conf, int seed, int count,
                                   String codecClass)
             throws IOException {

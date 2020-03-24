@@ -20,11 +20,11 @@
 
     <groupId>com.hadoop.fourmc</groupId>
     <artifactId>hadoop-4mc</artifactId>
-    <version>2.1.0</version>
+    <version>2.2.0</version>
     <packaging>jar</packaging>
 
     <name>4mc</name>
-    <url>https://github.com/carlomedas/4mc</url>
+    <url>https://github.com/fingltd/4mc</url>
     <description>
         4mc - Four More Compression, ZSTD and LZ4 power unleashed in hadoop/spark/flink.
     </description>
@@ -38,14 +38,22 @@
     </licenses>
 
     <organization>
-        <name>Carlo Medas</name>
-        <url>-</url>
+        <name>Fing Ltd</name>
+        <url>https://fing.com</url>
     </organization>
 
     <developers>
         <developer>
             <id>carlo</id>
             <name>Carlo Medas</name>
+        </developer>
+        <developer>
+            <id>noodlesbad</id>
+            <name>Giuseppe Badoni</name>
+        </developer>
+        <developer>
+            <id>BuzzL</id>
+            <name>Tommaso Latini</name>
         </developer>
     </developers>
 

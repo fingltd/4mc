@@ -23,7 +23,7 @@
         <dependency>
             <groupId>com.hadoop.fourmc</groupId>
             <artifactId>hadoop-4mc</artifactId>
-            <version>2.0.0</version>
+            <version>2.2.0</version>
         </dependency>
 
         <!-- hadoop 2.6 / Elephant-Bird / spark 2.0.0 / protobuf deps -->

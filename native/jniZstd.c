@@ -46,7 +46,7 @@ ZSTD:
  * Method:    isError
  * Signature: (J)I
  */
-JNIEXPORT jboolean JNICALL Java_com_hadoop_compression_fourmc_zstd_Zstd_isError
+JNIEXPORT jboolean JNICALL Java_com_fing_compression_fourmc_zstd_Zstd_isError
   (JNIEnv *env, jclass obj, jlong code) {
     return ZSTD_isError((size_t) code) != 0;
 }
@@ -56,7 +56,7 @@ JNIEXPORT jboolean JNICALL Java_com_hadoop_compression_fourmc_zstd_Zstd_isError
  * Method:    getErrorName
  * Signature: (J)Ljava/lang/String;
  */
-JNIEXPORT jstring JNICALL Java_com_hadoop_compression_fourmc_zstd_Zstd_getErrorName
+JNIEXPORT jstring JNICALL Java_com_fing_compression_fourmc_zstd_Zstd_getErrorName
   (JNIEnv *env, jclass obj, jlong code) {
     const char *msg = ZSTD_getErrorName(code);
     return (*env)->NewStringUTF(env, msg);
@@ -71,7 +71,7 @@ JNIEXPORT jstring JNICALL Java_com_hadoop_compression_fourmc_zstd_Zstd_getErrorN
  * Method:    cStreamInSize
  * Signature: ()J
  */
-JNIEXPORT jint JNICALL Java_com_hadoop_compression_fourmc_zstd_Zstd_cStreamInSize
+JNIEXPORT jint JNICALL Java_com_fing_compression_fourmc_zstd_Zstd_cStreamInSize
   (JNIEnv *env, jclass obj) {
     return (jint) ZSTD_CStreamInSize();
 }
@@ -81,7 +81,7 @@ JNIEXPORT jint JNICALL Java_com_hadoop_compression_fourmc_zstd_Zstd_cStreamInSiz
  * Method:    cStreamOutSize
  * Signature: ()J
  */
-JNIEXPORT jint JNICALL Java_com_hadoop_compression_fourmc_zstd_Zstd_cStreamOutSize
+JNIEXPORT jint JNICALL Java_com_fing_compression_fourmc_zstd_Zstd_cStreamOutSize
   (JNIEnv *env, jclass obj) {
     return (jint) ZSTD_CStreamOutSize();
 }
@@ -91,7 +91,7 @@ JNIEXPORT jint JNICALL Java_com_hadoop_compression_fourmc_zstd_Zstd_cStreamOutSi
  * Method:    dStreamInSize
  * Signature: ()J
  */
-JNIEXPORT jint JNICALL Java_com_hadoop_compression_fourmc_zstd_Zstd_dStreamInSize
+JNIEXPORT jint JNICALL Java_com_fing_compression_fourmc_zstd_Zstd_dStreamInSize
   (JNIEnv *env, jclass obj) {
     return (jint) ZSTD_DStreamInSize();
 }
@@ -101,7 +101,7 @@ JNIEXPORT jint JNICALL Java_com_hadoop_compression_fourmc_zstd_Zstd_dStreamInSiz
  * Method:    dStreamOutSize
  * Signature: ()J
  */
-JNIEXPORT jint JNICALL Java_com_hadoop_compression_fourmc_zstd_Zstd_dStreamOutSize
+JNIEXPORT jint JNICALL Java_com_fing_compression_fourmc_zstd_Zstd_dStreamOutSize
   (JNIEnv *env, jclass obj) {
     return (jint) ZSTD_DStreamOutSize();
 }

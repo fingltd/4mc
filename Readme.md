@@ -80,10 +80,10 @@ Enabling codecs has no difference from usual, i.e. by adding them to configurati
 			org.apache.hadoop.io.compress.GzipCodec,org.apache.hadoop.io.compress.DefaultCodec,org.apache.hadoop.io.compress.BZip2Codec,
 			com.hadoop.compression.lzo.LzoCodec,com.hadoop.compression.lzo.LzopCodec,
 			<!-- 4mc codecs -->
-			com.hadoop.compression.fourmc.Lz4Codec,com.hadoop.compression.fourmc.Lz4MediumCodec,com.hadoop.compression.fourmc.Lz4HighCodec,com.hadoop.compression.fourmc.Lz4UltraCodec,
-			com.hadoop.compression.fourmc.FourMcCodec,com.hadoop.compression.fourmc.FourMcMediumCodec,com.hadoop.compression.fourmc.FourMcHighCodec,com.hadoop.compression.fourmc.FourMcUltraCodec,
+			com.fing.compression.fourmc.Lz4Codec,com.fing.compression.fourmc.Lz4MediumCodec,com.fing.compression.fourmc.Lz4HighCodec,com.fing.compression.fourmc.Lz4UltraCodec,
+			com.fing.compression.fourmc.FourMcCodec,com.fing.compression.fourmc.FourMcMediumCodec,com.fing.compression.fourmc.FourMcHighCodec,com.fing.compression.fourmc.FourMcUltraCodec,
       <!-- 4mz codecs -->
-      com.hadoop.compression.fourmc.FourMzCodec,com.hadoop.compression.fourmc.FourMzMediumCodec,com.hadoop.compression.fourmc.FourMzHighCodec,com.hadoop.compression.fourmc.FourMzUltraCodec
+      com.fing.compression.fourmc.FourMzCodec,com.fing.compression.fourmc.FourMzMediumCodec,com.fing.compression.fourmc.FourMzHighCodec,com.fing.compression.fourmc.FourMzUltraCodec
 		</value>
     </property>
 ```
@@ -116,7 +116,7 @@ filepath = 'gs://data/foo.4mc'
 # This will read the file and partition it as it loads
 data = sc.newAPIHadoopFile(
     filepath
-,   'com.hadoop.mapreduce.FourMcTextInputFormat'
+,   'com.fing.mapreduce.FourMcTextInputFormat'
 ,   'org.apache.hadoop.io.LongWritable'
 ,   'org.apache.hadoop.io.Text'
 )

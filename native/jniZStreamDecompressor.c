@@ -50,7 +50,7 @@ static jfieldID o_buff_len_id;
  * Method:    initIDs
  * Signature: ()V
  */
-JNIEXPORT void JNICALL Java_com_hadoop_compression_fourmc_zstd_ZstdStreamDecompressor_initIDs
+JNIEXPORT void JNICALL Java_com_fing_compression_fourmc_zstd_ZstdStreamDecompressor_initIDs
   (JNIEnv *env, jclass obj) {
     src_pos_id = (*env)->GetFieldID(env, obj, "srcPos", "J");
     dst_pos_id = (*env)->GetFieldID(env, obj, "dstPos", "J");
@@ -63,7 +63,7 @@ JNIEXPORT void JNICALL Java_com_hadoop_compression_fourmc_zstd_ZstdStreamDecompr
  * Method:    createDStream
  * Signature: ()J
  */
-JNIEXPORT jlong JNICALL Java_com_hadoop_compression_fourmc_zstd_ZstdStreamDecompressor_createDStream
+JNIEXPORT jlong JNICALL Java_com_fing_compression_fourmc_zstd_ZstdStreamDecompressor_createDStream
   (JNIEnv *env, jclass obj) {
     return (jlong) ZSTD_createDStream();
 }
@@ -74,7 +74,7 @@ JNIEXPORT jlong JNICALL Java_com_hadoop_compression_fourmc_zstd_ZstdStreamDecomp
  * Method:    freeDStream
  * Signature: (J)I
  */
-JNIEXPORT jint JNICALL Java_com_hadoop_compression_fourmc_zstd_ZstdStreamDecompressor_freeDStream
+JNIEXPORT jint JNICALL Java_com_fing_compression_fourmc_zstd_ZstdStreamDecompressor_freeDStream
   (JNIEnv *env, jclass obj, jlong stream) {
     return (jint) ZSTD_freeDStream((ZSTD_DStream *) stream);
 }
@@ -84,7 +84,7 @@ JNIEXPORT jint JNICALL Java_com_hadoop_compression_fourmc_zstd_ZstdStreamDecompr
  * Method:    initDStream
  * Signature: (J)I
  */
-JNIEXPORT jint JNICALL Java_com_hadoop_compression_fourmc_zstd_ZstdStreamDecompressor_initDStream
+JNIEXPORT jint JNICALL Java_com_fing_compression_fourmc_zstd_ZstdStreamDecompressor_initDStream
   (JNIEnv *env, jclass obj, jlong stream) {
   return (jint) ZSTD_initDStream((ZSTD_DStream *) stream);
 }
@@ -94,7 +94,7 @@ JNIEXPORT jint JNICALL Java_com_hadoop_compression_fourmc_zstd_ZstdStreamDecompr
  * Method:    decompressStream
  * Signature: (JLjava/nio/ByteBuffer;ILjava/nio/ByteBuffer;II)I
  */
-JNIEXPORT jint JNICALL Java_com_hadoop_compression_fourmc_zstd_ZstdStreamDecompressor_decompressStream
+JNIEXPORT jint JNICALL Java_com_fing_compression_fourmc_zstd_ZstdStreamDecompressor_decompressStream
   (JNIEnv *env, jobject this, jlong stream, jobject dst, jint dst_size, jobject src, jint src_size) {
 
     size_t size = (size_t)(0-ZSTD_error_memory_allocation);

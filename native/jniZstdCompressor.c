@@ -57,7 +57,7 @@ static jfieldID ZstdCompressor_directBufferSize;
 
 
 JNIEXPORT void JNICALL
-Java_com_hadoop_compression_fourmc_ZstdCompressor_initIDs(
+Java_com_fing_compression_fourmc_ZstdCompressor_initIDs(
 	JNIEnv *env, jclass class
 	)
 {
@@ -72,7 +72,7 @@ Java_com_hadoop_compression_fourmc_ZstdCompressor_initIDs(
 
 
 JNIEXPORT jint JNICALL
-Java_com_hadoop_compression_fourmc_ZstdCompressor_compressBytesDirect(
+Java_com_fing_compression_fourmc_ZstdCompressor_compressBytesDirect(
   JNIEnv *env, jobject this)
 {
 	size_t r;
@@ -106,7 +106,7 @@ Java_com_hadoop_compression_fourmc_ZstdCompressor_compressBytesDirect(
 }
 
 JNIEXPORT jint JNICALL
-Java_com_hadoop_compression_fourmc_ZstdCompressor_compressBytesDirectMC(
+Java_com_fing_compression_fourmc_ZstdCompressor_compressBytesDirectMC(
   JNIEnv *env, jobject this)
 {
 	size_t r;
@@ -140,7 +140,7 @@ Java_com_hadoop_compression_fourmc_ZstdCompressor_compressBytesDirectMC(
 
 
 JNIEXPORT jint JNICALL
-Java_com_hadoop_compression_fourmc_ZstdCompressor_compressBytesDirectHC(
+Java_com_fing_compression_fourmc_ZstdCompressor_compressBytesDirectHC(
   JNIEnv *env, jobject this, jint clevel)
 {
 	size_t r;
@@ -173,14 +173,14 @@ Java_com_hadoop_compression_fourmc_ZstdCompressor_compressBytesDirectHC(
 }
 
 
-JNIEXPORT jint JNICALL Java_com_hadoop_compression_fourmc_ZstdCompressor_compressBound
+JNIEXPORT jint JNICALL Java_com_fing_compression_fourmc_ZstdCompressor_compressBound
   (JNIEnv *env, jclass cls, jint forSize) {
     return ZSTD_compressBound(forSize);
 }
 
 
 
-JNIEXPORT jint JNICALL Java_com_hadoop_compression_fourmc_ZstdCompressor_xxhash32
+JNIEXPORT jint JNICALL Java_com_fing_compression_fourmc_ZstdCompressor_xxhash32
   (JNIEnv *env, jclass cls, jbyteArray buf, jint off, jint len, jint seed) {
 
   char* in;

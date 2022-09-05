@@ -20,7 +20,7 @@
 
     <groupId>com.fing.fourmc</groupId>
     <artifactId>hadoop-4mc</artifactId>
-    <version>2.2.0</version>
+    <version>3.0.0</version>
     <packaging>jar</packaging>
 
     <name>4mc</name>

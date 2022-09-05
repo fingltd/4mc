@@ -52,6 +52,7 @@ you are not needing long-term storage.
 ## Releases and change history
 Releases with artifacts available at https://github.com/fingltd/4mc/releases - Attached artifacts contain jar with embedded native library for Windows/Linux/MacOS. You can anyway compile JNI bindings for your own platform and override embedded ones.
 4mc CLI tool for all platforms is now available at https://github.com/fingltd/4mc/tree/master/tool
+* **4mc 3.0.0** - Updated native libaries: LZ4 1.9.4 and ZSTD 1.5.2, package rename
 * **4mc 2.2.0** - Updated native libaries: LZ4 1.9.2 and ZSTD 1.4.4
 * **4mc 2.1.0** - Compatibility with newer Hadoop (2.7.x) and Spark (2.4.3)
 * **4mc 2.0.0** - 4mz to support ZSTD (zstandard https://github.com/facebook/zstd)

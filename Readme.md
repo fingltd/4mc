@@ -52,6 +52,7 @@ you are not needing long-term storage.
 ## Releases and change history
 Releases with artifacts available at https://github.com/fingltd/4mc/releases - Attached artifacts contain jar with embedded native library for Windows/Linux/MacOS. You can anyway compile JNI bindings for your own platform and override embedded ones.
 4mc CLI tool for all platforms is now available at https://github.com/fingltd/4mc/tree/master/tool
+* **4mc 3.0.0** - Updated native libaries: LZ4 1.9.4 and ZSTD 1.5.2, package rename
 * **4mc 2.2.0** - Updated native libaries: LZ4 1.9.2 and ZSTD 1.4.4
 * **4mc 2.1.0** - Compatibility with newer Hadoop (2.7.x) and Spark (2.4.3)
 * **4mc 2.0.0** - 4mz to support ZSTD (zstandard https://github.com/facebook/zstd)
@@ -80,10 +81,10 @@ Enabling codecs has no difference from usual, i.e. by adding them to configurati
 			org.apache.hadoop.io.compress.GzipCodec,org.apache.hadoop.io.compress.DefaultCodec,org.apache.hadoop.io.compress.BZip2Codec,
 			com.hadoop.compression.lzo.LzoCodec,com.hadoop.compression.lzo.LzopCodec,
 			<!-- 4mc codecs -->
-			com.hadoop.compression.fourmc.Lz4Codec,com.hadoop.compression.fourmc.Lz4MediumCodec,com.hadoop.compression.fourmc.Lz4HighCodec,com.hadoop.compression.fourmc.Lz4UltraCodec,
-			com.hadoop.compression.fourmc.FourMcCodec,com.hadoop.compression.fourmc.FourMcMediumCodec,com.hadoop.compression.fourmc.FourMcHighCodec,com.hadoop.compression.fourmc.FourMcUltraCodec,
+			com.fing.compression.fourmc.Lz4Codec,com.fing.compression.fourmc.Lz4MediumCodec,com.fing.compression.fourmc.Lz4HighCodec,com.fing.compression.fourmc.Lz4UltraCodec,
+			com.fing.compression.fourmc.FourMcCodec,com.fing.compression.fourmc.FourMcMediumCodec,com.fing.compression.fourmc.FourMcHighCodec,com.fing.compression.fourmc.FourMcUltraCodec,
       <!-- 4mz codecs -->
-      com.hadoop.compression.fourmc.FourMzCodec,com.hadoop.compression.fourmc.FourMzMediumCodec,com.hadoop.compression.fourmc.FourMzHighCodec,com.hadoop.compression.fourmc.FourMzUltraCodec
+      com.fing.compression.fourmc.FourMzCodec,com.fing.compression.fourmc.FourMzMediumCodec,com.fing.compression.fourmc.FourMzHighCodec,com.fing.compression.fourmc.FourMzUltraCodec
 		</value>
     </property>
 ```
@@ -116,7 +117,7 @@ filepath = 'gs://data/foo.4mc'
 # This will read the file and partition it as it loads
 data = sc.newAPIHadoopFile(
     filepath
-,   'com.hadoop.mapreduce.FourMcTextInputFormat'
+,   'com.fing.mapreduce.FourMcTextInputFormat'
 ,   'org.apache.hadoop.io.LongWritable'
 ,   'org.apache.hadoop.io.Text'
 )

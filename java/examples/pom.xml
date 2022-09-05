@@ -3,7 +3,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <parent>
-        <groupId>com.hadoop.fourmc</groupId>
+        <groupId>com.fing.fourmc</groupId>
         <artifactId>parent</artifactId>
         <version>1.0</version>
     </parent>
@@ -21,9 +21,9 @@
         <!-- 4mc -->
 
         <dependency>
-            <groupId>com.hadoop.fourmc</groupId>
+            <groupId>com.fing.fourmc</groupId>
             <artifactId>hadoop-4mc</artifactId>
-            <version>2.0.0</version>
+            <version>3.0.0</version>
         </dependency>
 
         <!-- hadoop 2.6 / Elephant-Bird / spark 2.0.0 / protobuf deps -->

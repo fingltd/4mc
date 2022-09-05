@@ -2,7 +2,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
      <parent>
-         <groupId>com.hadoop.fourmc</groupId>
+         <groupId>com.fing.fourmc</groupId>
          <artifactId>parent</artifactId>
          <version>1.0</version>
      </parent>
@@ -18,9 +18,9 @@
         <javac.target.version>1.7</javac.target.version-->
     </properties>
 
-    <groupId>com.hadoop.fourmc</groupId>
+    <groupId>com.fing.fourmc</groupId>
     <artifactId>hadoop-4mc</artifactId>
-    <version>2.2.0</version>
+    <version>3.0.0</version>
     <packaging>jar</packaging>
 
     <name>4mc</name>
@@ -54,6 +54,10 @@
         <developer>
             <id>BuzzL</id>
             <name>Tommaso Latini</name>
+        </developer>
+        <developer>
+            <id>Scip88</id>
+            <name>Francesco Scipioni</name>
         </developer>
     </developers>
 

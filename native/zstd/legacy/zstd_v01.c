@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-present, Yann Collet, Facebook, Inc.
+ * Copyright (c) Yann Collet, Facebook, Inc.
  * All rights reserved.
  *
  * This source code is licensed under both the BSD-style license (found in the
@@ -14,7 +14,7 @@
 ******************************************/
 #include <stddef.h>    /* size_t, ptrdiff_t */
 #include "zstd_v01.h"
-#include "error_private.h"
+#include "../common/error_private.h"
 
 
 /******************************************
@@ -204,10 +204,7 @@ typedef   signed long long  S64;
  * Prefer these methods in priority order (0 > 1 > 2)
  */
 #ifndef FSE_FORCE_MEMORY_ACCESS   /* can be defined externally, on command line for example */
-#  if defined(__GNUC__) && ( defined(__ARM_ARCH_6__) || defined(__ARM_ARCH_6J__) || defined(__ARM_ARCH_6K__) || defined(__ARM_ARCH_6Z__) || defined(__ARM_ARCH_6ZK__) || defined(__ARM_ARCH_6T2__) )
-#    define FSE_FORCE_MEMORY_ACCESS 2
-#  elif (defined(__INTEL_COMPILER) && !defined(WIN32)) || \
-  (defined(__GNUC__) && ( defined(__ARM_ARCH_7__) || defined(__ARM_ARCH_7A__) || defined(__ARM_ARCH_7R__) || defined(__ARM_ARCH_7M__) || defined(__ARM_ARCH_7S__) ))
+#  if defined(__INTEL_COMPILER) || defined(__GNUC__) || defined(__ICCARM__)
 #    define FSE_FORCE_MEMORY_ACCESS 1
 #  endif
 #endif
@@ -257,7 +254,7 @@ static U64 FSE_read64(const void* memPtr)
     U64 val; memcpy(&val, memPtr, sizeof(val)); return val;
 }
 
-#endif // FSE_FORCE_MEMORY_ACCESS
+#endif /* FSE_FORCE_MEMORY_ACCESS */
 
 static U16 FSE_readLE16(const void* memPtr)
 {
@@ -343,8 +340,7 @@ FORCE_INLINE unsigned FSE_highbit32 (U32 val)
 {
 #   if defined(_MSC_VER)   /* Visual */
     unsigned long r;
-    _BitScanReverse ( &r, val );
-    return (unsigned) r;
+    return _BitScanReverse(&r, val) ? (unsigned)r : 0;
 #   elif defined(__GNUC__) && (GCC_VERSION >= 304)   /* GCC Intrinsic */
     return __builtin_clz (val) ^ 31;
 #   else   /* Software version */
@@ -1078,7 +1074,7 @@ static size_t HUF_decompress_usingDTable(   /* -3% slower when non static */
         BYTE* const ostart = (BYTE*) dst;
         BYTE* op = ostart;
         BYTE* const omax = op + maxDstSize;
-        BYTE* const olimit = omax-15;
+        BYTE* const olimit = maxDstSize < 15 ? op : omax-15;
 
         const void* ptr = DTable;
         const HUF_DElt* const dt = (const HUF_DElt*)(ptr)+1;
@@ -1092,7 +1088,7 @@ static size_t HUF_decompress_usingDTable(   /* -3% slower when non static */
         const size_t length1 = FSE_readLE16(jumpTable);
         const size_t length2 = FSE_readLE16(jumpTable+1);
         const size_t length3 = FSE_readLE16(jumpTable+2);
-        const size_t length4 = cSrcSize - 6 - length1 - length2 - length3;   // check coherency !!
+        const size_t length4 = cSrcSize - 6 - length1 - length2 - length3;   /* check coherency !! */
         const char* const start1 = (const char*)(cSrc) + 6;
         const char* const start2 = start1 + length1;
         const char* const start3 = start2 + length2;
@@ -1150,11 +1146,11 @@ static size_t HUF_decompress_usingDTable(   /* -3% slower when non static */
 
         /* tail */
         {
-            // bitTail = bitD1;   // *much* slower : -20% !??!
+            /* bitTail = bitD1; */   /* *much* slower : -20% !??! */
             FSE_DStream_t bitTail;
             bitTail.ptr = bitD1.ptr;
             bitTail.bitsConsumed = bitD1.bitsConsumed;
-            bitTail.bitContainer = bitD1.bitContainer;   // required in case of FSE_DStream_endOfBuffer
+            bitTail.bitContainer = bitD1.bitContainer;   /* required in case of FSE_DStream_endOfBuffer */
             bitTail.start = start1;
             for ( ; (FSE_reloadDStream(&bitTail) < FSE_DStream_completed) && (op<omax) ; op++)
             {
@@ -1280,7 +1276,11 @@ static size_t HUF_decompress (void* dst, size_t maxDstSize, const void* cSrc, si
 *  Basic Types
 *********************************************************/
 #if defined (__STDC_VERSION__) && __STDC_VERSION__ >= 199901L   /* C99 */
-# include <stdint.h>
+# if defined(_AIX)
+#  include <inttypes.h>
+# else
+#  include <stdint.h> /* intptr_t */
+# endif
 typedef  uint8_t BYTE;
 typedef uint16_t U16;
 typedef  int16_t S16;
@@ -1483,7 +1483,9 @@ static size_t ZSTDv01_getcBlockSize(const void* src, size_t srcSize, blockProper
 static size_t ZSTD_copyUncompressedBlock(void* dst, size_t maxDstSize, const void* src, size_t srcSize)
 {
     if (srcSize > maxDstSize) return ERROR(dstSize_tooSmall);
-    memcpy(dst, src, srcSize);
+    if (srcSize > 0) {
+        memcpy(dst, src, srcSize);
+    }
     return srcSize;
 }
 
@@ -1502,7 +1504,7 @@ static size_t ZSTD_decompressLiterals(void* ctx,
     if (srcSize <= 3) return ERROR(corruption_detected);
 
     litSize = ip[1] + (ip[0]<<8);
-    litSize += ((ip[-3] >> 3) & 7) << 16;   // mmmmh....
+    litSize += ((ip[-3] >> 3) & 7) << 16;   /* mmmmh.... */
     op = oend - litSize;
 
     (void)ctx;
@@ -1541,7 +1543,9 @@ static size_t ZSTDv01_decodeLiteralsBlock(void* ctx,
             size_t rleSize = litbp.origSize;
             if (rleSize>maxDstSize) return ERROR(dstSize_tooSmall);
             if (!srcSize) return ERROR(srcSize_wrong);
-            memset(oend - rleSize, *ip, rleSize);
+            if (rleSize > 0) {
+                memset(oend - rleSize, *ip, rleSize);
+            }
             *litStart = oend - rleSize;
             *litSize = rleSize;
             ip++;
@@ -1901,8 +1905,10 @@ static size_t ZSTD_decompressSequences(
         {
             size_t lastLLSize = litEnd - litPtr;
             if (op+lastLLSize > oend) return ERROR(dstSize_tooSmall);
-            if (op != litPtr) memmove(op, litPtr, lastLLSize);
-            op += lastLLSize;
+            if (lastLLSize > 0) {
+                if (op != litPtr) memmove(op, litPtr, lastLLSize);
+                op += lastLLSize;
+            }
         }
     }
 

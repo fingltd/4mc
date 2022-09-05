@@ -56,7 +56,7 @@ static jfieldID ZstdDecompressor_directBufferSize;
 
 
 JNIEXPORT void JNICALL
-Java_com_hadoop_compression_fourmc_ZstdDecompressor_initIDs(JNIEnv *env, jclass class) {
+Java_com_fing_compression_fourmc_ZstdDecompressor_initIDs(JNIEnv *env, jclass class) {
     
   ZstdDecompressor_finished = (*env)->GetFieldID(env, class, "finished", "Z");
   ZstdDecompressor_compressedDirectBuf = (*env)->GetFieldID(env, class,"compressedDirectBuf", "Ljava/nio/Buffer;");
@@ -67,7 +67,7 @@ Java_com_hadoop_compression_fourmc_ZstdDecompressor_initIDs(JNIEnv *env, jclass 
 
 
 JNIEXPORT jint JNICALL
-Java_com_hadoop_compression_fourmc_ZstdDecompressor_decompressBytesDirect(
+Java_com_fing_compression_fourmc_ZstdDecompressor_decompressBytesDirect(
 	JNIEnv *env, jobject this) {
 
 	int outputSize;
@@ -101,7 +101,7 @@ Java_com_hadoop_compression_fourmc_ZstdDecompressor_decompressBytesDirect(
   return outputSize;
 }
 
-JNIEXPORT jint JNICALL Java_com_hadoop_compression_fourmc_ZstdDecompressor_xxhash32
+JNIEXPORT jint JNICALL Java_com_fing_compression_fourmc_ZstdDecompressor_xxhash32
   (JNIEnv *env, jclass cls, jbyteArray buf, jint off, jint len, jint seed) {
 
   char* in;

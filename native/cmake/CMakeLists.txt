@@ -44,9 +44,8 @@ IF (MSVC)
 	add_definitions("/wd4711")
 ENDIF()
 
-if (MSVC OR APPLE)
-	add_compile_options(-DZSTD_DISABLE_ASM)
-endif(MSVC OR APPLE)
+#ASM disable
+add_compile_options(-DZSTD_DISABLE_ASM)
 
 set(LZ4_DIR ../lz4/)
 set(ZSTD_DIR ../zstd/)

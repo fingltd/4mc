@@ -68,7 +68,7 @@
 #  include <fcntl.h>    // _O_BINARY
 #  include <io.h>       // _setmode, _isatty
 #  ifdef __MINGW32__
-   int _fileno(FILE *stream);   // MINGW somehow forgets to include this windows declaration into <stdio.h>
+   //int _fileno(FILE *stream);   // MINGW somehow forgets to include this windows declaration into <stdio.h>
 #  endif
 #  define SET_BINARY_MODE(file) _setmode(_fileno(file), _O_BINARY)
 #  define IS_CONSOLE(stdStream) _isatty(_fileno(stdStream))
@@ -86,13 +86,13 @@
 #elif GCC_VERSION >= 403
 #  define swap32 __builtin_bswap32
 #else
-  static inline unsigned int swap32(unsigned int x)
-  {
+static inline unsigned int swap32(unsigned int x)
+{
     return ((x << 24) & 0xff000000 ) |
            ((x <<  8) & 0x00ff0000 ) |
            ((x >>  8) & 0x0000ff00 ) |
            ((x >> 24) & 0x000000ff );
-  }
+}
 #endif
 
 
@@ -209,8 +209,8 @@ static int openIOFileHandles(int displayLevel, int overwrite, char* input_filena
 }
 
 
-FORCE_INLINE int LZ4_compress_limitedOutput_local(const char* src, char* dst, int size, int maxOut, int clevel)
-{ (void)clevel; return LZ4_compress_limitedOutput(src, dst, size, maxOut); }
+FORCE_INLINE int LZ4_compress_default_local(const char* src, char* dst, int size, int maxOut, int clevel)
+{ (void)clevel; return LZ4_compress_default(src, dst, size, maxOut); }
 
 
 FORCE_INLINE int LZ4_compressMC_limitedOutput_local(const char* src, char* dst, int size, int maxOut, int clevel)
@@ -220,7 +220,7 @@ FORCE_INLINE int LZ4_compressMC_limitedOutput_local(const char* src, char* dst, 
 int fourMCcompressFilename(int displayLevel, int overwrite, char* input_filename, char* output_filename, int compressionLevel)
 {
     int (*compressionFunction)(const char*, char*, int, int, int);
-	int lz4Level=1; unsigned int bi;
+    int lz4Level=1; unsigned int bi;
     unsigned long long filesize = 0;
     unsigned long long compressedfilesize = 0;
     unsigned int checkbits;
@@ -241,14 +241,14 @@ int fourMCcompressFilename(int displayLevel, int overwrite, char* input_filename
     if ((displayLevel==2) && (compressionLevel>1)) displayLevel=3;
 
     if (compressionLevel <= 1) {
-        compressionFunction = LZ4_compress_limitedOutput_local;
+        compressionFunction = LZ4_compress_default_local;
     } else if (compressionLevel == 2) {
         compressionFunction = LZ4_compressMC_limitedOutput_local;
     } else if (compressionLevel == 3) {
-        compressionFunction = LZ4_compressHC2_limitedOutput;
+        compressionFunction = LZ4_compress_HC;
         lz4Level=4;
     } else {
-        compressionFunction = LZ4_compressHC2_limitedOutput;
+        compressionFunction = LZ4_compress_HC;
         lz4Level=8;
     }
 
@@ -317,7 +317,7 @@ int fourMCcompressFilename(int displayLevel, int overwrite, char* input_filename
         }
         else  // Copy Original Uncompressed
         {
-			unsigned int checksum;
+            unsigned int checksum;
             *(unsigned int*)(out_buff) = BIG_ENDIAN_32(readSize);
             *(unsigned int*)(out_buff+4) = BIG_ENDIAN_32(readSize);
             checksum = XXH32(in_buff, (int)readSize, 0);
@@ -373,9 +373,9 @@ int fourMCcompressFilename(int displayLevel, int overwrite, char* input_filename
     end = clock();
     CONSOLE_PRINT_LEVEL(2, "\r%79s\r", "");
     CONSOLE_PRINT_LEVEL(2, "Compressed (%s) %llu bytes into %llu bytes ==> %.2f%% (Ratio=%.3f)\n",
-        compressionLevel<=1?"fast":(compressionLevel==2?"medium":(compressionLevel==3?"high":"ultra")),
-        (unsigned long long) filesize, (unsigned long long) compressedfilesize, (double)compressedfilesize/filesize*100,
-        (double)100.0/((double)compressedfilesize/filesize*100));
+                        compressionLevel<=1?"fast":(compressionLevel==2?"medium":(compressionLevel==3?"high":"ultra")),
+                        (unsigned long long) filesize, (unsigned long long) compressedfilesize, (double)compressedfilesize/filesize*100,
+                        (double)100.0/((double)compressedfilesize/filesize*100));
 
     {
         double seconds = (double)(end - start)/CLOCKS_PER_SEC;
@@ -388,7 +388,7 @@ int fourMCcompressFilename(int displayLevel, int overwrite, char* input_filename
 
 int fourMZcompressFilename(int displayLevel, int overwrite, char* input_filename, char* output_filename, int compressionLevel)
 {
-	int zstdLevel=3; unsigned int bi;
+    int zstdLevel=3; unsigned int bi;
     unsigned long long filesize = 0;
     unsigned long long compressedfilesize = 0;
     unsigned int checkbits;
@@ -409,11 +409,11 @@ int fourMZcompressFilename(int displayLevel, int overwrite, char* input_filename
     if ((displayLevel==2) && (compressionLevel>1)) displayLevel=3;
 
     if (compressionLevel <= 1) {
-    	zstdLevel=1;
+        zstdLevel=1;
     } else if (compressionLevel == 2) {
-    	zstdLevel=3;
+        zstdLevel=3;
     } else if (compressionLevel == 3) {
-    	zstdLevel=6;
+        zstdLevel=6;
     } else {
         zstdLevel=12;
     }
@@ -445,7 +445,7 @@ int fourMZcompressFilename(int displayLevel, int overwrite, char* input_filename
     // Main Loop
     while (readSize>0)
     {
-    	size_t outSize;
+        size_t outSize;
 
         // ------------------------------
         if (++blockIndexesCount >= blockIndexesReserved) {
@@ -484,7 +484,7 @@ int fourMZcompressFilename(int displayLevel, int overwrite, char* input_filename
         }
         else  // Copy Original Uncompressed
         {
-			unsigned int checksum;
+            unsigned int checksum;
             *(unsigned int*)(out_buff) = BIG_ENDIAN_32(readSize);
             *(unsigned int*)(out_buff+4) = BIG_ENDIAN_32(readSize);
             checksum = XXH32(in_buff, (int)readSize, 0);
@@ -540,9 +540,9 @@ int fourMZcompressFilename(int displayLevel, int overwrite, char* input_filename
     end = clock();
     CONSOLE_PRINT_LEVEL(2, "\r%79s\r", "");
     CONSOLE_PRINT_LEVEL(2, "Compressed (%s) %llu bytes into %llu bytes ==> %.2f%% (Ratio=%.3f)\n",
-        compressionLevel<=1?"fast":(compressionLevel==2?"medium":(compressionLevel==3?"high":"ultra")),
-        (unsigned long long) filesize, (unsigned long long) compressedfilesize, (double)compressedfilesize/filesize*100,
-        (double)100.0/((double)compressedfilesize/filesize*100));
+                        compressionLevel<=1?"fast":(compressionLevel==2?"medium":(compressionLevel==3?"high":"ultra")),
+                        (unsigned long long) filesize, (unsigned long long) compressedfilesize, (double)compressedfilesize/filesize*100,
+                        (double)100.0/((double)compressedfilesize/filesize*100));
 
     {
         double seconds = (double)(end - start)/CLOCKS_PER_SEC;
@@ -567,7 +567,7 @@ static unsigned long long decodeFourMC(int displayLevel, FILE* finput, FILE* fou
     size_t nbReadBytes;
     int decodedBytes=0;
     size_t sizeCheck;
-	unsigned int footerSize, checksum;
+    unsigned int footerSize, checksum;
 
     descriptor = (char*)malloc(FOURMC_HEADERSIZE*2); // will be used for file header(12), block header(12), others(<12)
 
@@ -685,7 +685,7 @@ static unsigned long long decodeFourMC(int displayLevel, FILE* finput, FILE* fou
     if (checksum != BIG_ENDIAN_32(*(unsigned int*)(in_buff+footerSize-4))) EXIT_WITH_FATALERROR_CONTENT("Error : invalid footer checksum detected");
 
     if ( BIG_ENDIAN_32(*(unsigned int*)(in_buff+4)) != 1) // check footer version
-        EXIT_WITH_FATALERROR_CONTENT("Read error : unsupported footer version" );
+    EXIT_WITH_FATALERROR_CONTENT("Read error : unsupported footer version" );
 
     if (displayLevel>=3) {
         unsigned long long absOffset=0;
@@ -716,7 +716,7 @@ static unsigned long long decodeFourMZ(int displayLevel, FILE* finput, FILE* fou
     size_t nbReadBytes;
     int decodedBytes=0;
     size_t sizeCheck;
-	unsigned int footerSize, checksum;
+    unsigned int footerSize, checksum;
 
     descriptor = (char*)malloc(FOURMC_HEADERSIZE*2); // will be used for file header(12), block header(12), others(<12)
 
@@ -835,7 +835,7 @@ static unsigned long long decodeFourMZ(int displayLevel, FILE* finput, FILE* fou
     if (checksum != BIG_ENDIAN_32(*(unsigned int*)(in_buff+footerSize-4))) EXIT_WITH_FATALERROR_CONTENT("Error : invalid footer checksum detected");
 
     if ( BIG_ENDIAN_32(*(unsigned int*)(in_buff+4)) != 1) // check footer version
-        EXIT_WITH_FATALERROR_CONTENT("Read error : unsupported footer version" );
+    EXIT_WITH_FATALERROR_CONTENT("Read error : unsupported footer version" );
 
     if (displayLevel>=3) {
         unsigned long long absOffset=0;

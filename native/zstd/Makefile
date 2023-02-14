@@ -1,115 +1,357 @@
 # ################################################################
-# Copyright (c) 2016-present, Yann Collet, Facebook, Inc.
+# Copyright (c) Yann Collet, Facebook, Inc.
 # All rights reserved.
 #
-# This source code is licensed under the BSD-style license found in the
-# LICENSE file in the root directory of this source tree. An additional grant
-# of patent rights can be found in the PATENTS file in the same directory.
+# This source code is licensed under both the BSD-style license (found in the
+# LICENSE file in the root directory of this source tree) and the GPLv2 (found
+# in the COPYING file in the root directory of this source tree).
+# You may select, at your option, one of the above-listed licenses.
 # ################################################################
 
-# Version numbers
-LIBVER_MAJOR_SCRIPT:=`sed -n '/define ZSTD_VERSION_MAJOR/s/.*[[:blank:]]\([0-9][0-9]*\).*/\1/p' < ./zstd.h`
-LIBVER_MINOR_SCRIPT:=`sed -n '/define ZSTD_VERSION_MINOR/s/.*[[:blank:]]\([0-9][0-9]*\).*/\1/p' < ./zstd.h`
-LIBVER_PATCH_SCRIPT:=`sed -n '/define ZSTD_VERSION_RELEASE/s/.*[[:blank:]]\([0-9][0-9]*\).*/\1/p' < ./zstd.h`
-LIBVER_SCRIPT:= $(LIBVER_MAJOR_SCRIPT).$(LIBVER_MINOR_SCRIPT).$(LIBVER_PATCH_SCRIPT)
-LIBVER_MAJOR := $(shell echo $(LIBVER_MAJOR_SCRIPT))
-LIBVER_MINOR := $(shell echo $(LIBVER_MINOR_SCRIPT))
-LIBVER_PATCH := $(shell echo $(LIBVER_PATCH_SCRIPT))
-LIBVER := $(shell echo $(LIBVER_SCRIPT))
-VERSION?= $(LIBVER)
+# Modules
+ZSTD_LIB_COMPRESSION ?= 1
+ZSTD_LIB_DECOMPRESSION ?= 1
+ZSTD_LIB_DICTBUILDER ?= 1
+ZSTD_LIB_DEPRECATED ?= 0
 
-DESTDIR?=
-PREFIX ?= /usr/local
-LIBDIR ?= $(PREFIX)/lib
-INCLUDEDIR=$(PREFIX)/include
+# Input variables for libzstd.mk
+ifeq ($(ZSTD_LIB_COMPRESSION), 0)
+  ZSTD_LIB_DICTBUILDER = 0
+  ZSTD_LIB_DEPRECATED = 0
+endif
 
-CPPFLAGS= -I. -I./common
-CFLAGS ?= -O3
-CFLAGS += -Wall -Wextra -Wcast-qual -Wcast-align -Wshadow -Wstrict-aliasing=1 \
-          -Wswitch-enum -Wdeclaration-after-statement -Wstrict-prototypes -Wundef
-FLAGS   = $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) $(MOREFLAGS)
+ifeq ($(ZSTD_LIB_DECOMPRESSION), 0)
+  ZSTD_LEGACY_SUPPORT = 0
+  ZSTD_LIB_DEPRECATED = 0
+endif
+
+include libzstd.mk
+
+ZSTD_FILES := $(ZSTD_COMMON_FILES) $(ZSTD_LEGACY_FILES)
+
+ifneq ($(ZSTD_LIB_COMPRESSION), 0)
+  ZSTD_FILES += $(ZSTD_COMPRESS_FILES)
+endif
+
+ifneq ($(ZSTD_LIB_DECOMPRESSION), 0)
+  ZSTD_FILES += $(ZSTD_DECOMPRESS_FILES)
+endif
+
+ifneq ($(ZSTD_LIB_DEPRECATED), 0)
+  ZSTD_FILES += $(ZSTD_DEPRECATED_FILES)
+endif
+
+ifneq ($(ZSTD_LIB_DICTBUILDER), 0)
+  ZSTD_FILES += $(ZSTD_DICTBUILDER_FILES)
+endif
+
+ZSTD_LOCAL_SRC := $(notdir $(ZSTD_FILES))
+ZSTD_LOCAL_OBJ0 := $(ZSTD_LOCAL_SRC:.c=.o)
+ZSTD_LOCAL_OBJ := $(ZSTD_LOCAL_OBJ0:.S=.o)
+
+VERSION := $(ZSTD_VERSION)
+
+# Note: by default, the static library is built single-threaded and dynamic library is built
+# multi-threaded. It is possible to force multi or single threaded builds by appending
+# -mt or -nomt to the build target (like lib-mt for multi-threaded, lib-nomt for single-threaded).
+.PHONY: default
+default: lib-release
+
+CPPFLAGS_DYNLIB  += -DZSTD_MULTITHREAD # dynamic library build defaults to multi-threaded
+LDFLAGS_DYNLIB   += -pthread
+CPPFLAGS_STATLIB +=                    # static library build defaults to single-threaded
 
 
-ZSTD_FILES := common/*.c compress/*.c decompress/*.c dictBuilder/*.c
-
-ifeq ($(ZSTD_LEGACY_SUPPORT), 0)
-CPPFLAGS  += -DZSTD_LEGACY_SUPPORT=0
-else
-ZSTD_FILES+= legacy/*.c
-CPPFLAGS  += -I./legacy -DZSTD_LEGACY_SUPPORT=1
+ifeq ($(findstring GCC,$(CCVER)),GCC)
+decompress/zstd_decompress_block.o : CFLAGS+=-fno-tree-vectorize
 endif
 
 
-# OS X linker doesn't support -soname, and use different extension
+# macOS linker doesn't support -soname, and use different extension
 # see : https://developer.apple.com/library/mac/documentation/DeveloperTools/Conceptual/DynamicLibraries/100-Articles/DynamicLibraryDesignGuidelines.html
-ifeq ($(shell uname), Darwin)
-	SHARED_EXT = dylib
-	SHARED_EXT_MAJOR = $(LIBVER_MAJOR).$(SHARED_EXT)
-	SHARED_EXT_VER = $(LIBVER).$(SHARED_EXT)
-	SONAME_FLAGS = -install_name $(PREFIX)/lib/$@.$(SHARED_EXT_MAJOR) -compatibility_version $(LIBVER_MAJOR) -current_version $(LIBVER)
+ifeq ($(UNAME), Darwin)
+  SHARED_EXT = dylib
+  SHARED_EXT_MAJOR = $(LIBVER_MAJOR).$(SHARED_EXT)
+  SHARED_EXT_VER = $(LIBVER).$(SHARED_EXT)
+  SONAME_FLAGS = -install_name $(LIBDIR)/libzstd.$(SHARED_EXT_MAJOR) -compatibility_version $(LIBVER_MAJOR) -current_version $(LIBVER)
 else
-	SONAME_FLAGS = -Wl,-soname=$@.$(SHARED_EXT).$(LIBVER_MAJOR)
-	SHARED_EXT = so
-	SHARED_EXT_MAJOR = $(SHARED_EXT).$(LIBVER_MAJOR)
-	SHARED_EXT_VER = $(SHARED_EXT).$(LIBVER)
+  ifeq ($(UNAME), AIX)
+    SONAME_FLAGS =
+  else
+    SONAME_FLAGS = -Wl,-soname=libzstd.$(SHARED_EXT).$(LIBVER_MAJOR)
+  endif
+  SHARED_EXT = so
+  SHARED_EXT_MAJOR = $(SHARED_EXT).$(LIBVER_MAJOR)
+  SHARED_EXT_VER = $(SHARED_EXT).$(LIBVER)
 endif
 
 
-.PHONY: default all clean install uninstall
+.PHONY: all
+all: lib
 
-default: clean libzstd
 
-all: clean libzstd
+.PHONY: libzstd.a  # must be run every time
+libzstd.a: CPPFLAGS += $(CPPFLAGS_STATLIB)
 
-libzstd: $(ZSTD_FILES)
-	@echo compiling static library
-	@$(CC) $(FLAGS) -c $^
-	@$(AR) rcs $@.a *.o
+SET_CACHE_DIRECTORY = \
+   +$(MAKE) --no-print-directory $@ \
+    BUILD_DIR=obj/$(HASH_DIR) \
+    CPPFLAGS="$(CPPFLAGS)" \
+    CFLAGS="$(CFLAGS)" \
+    LDFLAGS="$(LDFLAGS)"
+
+ifndef BUILD_DIR
+# determine BUILD_DIR from compilation flags
+
+libzstd.a:
+	$(SET_CACHE_DIRECTORY)
+
+else
+# BUILD_DIR is defined
+
+ZSTD_STATLIB_DIR := $(BUILD_DIR)/static
+ZSTD_STATLIB := $(ZSTD_STATLIB_DIR)/libzstd.a
+ZSTD_STATLIB_OBJ := $(addprefix $(ZSTD_STATLIB_DIR)/,$(ZSTD_LOCAL_OBJ))
+$(ZSTD_STATLIB): ARFLAGS = rcs
+$(ZSTD_STATLIB): | $(ZSTD_STATLIB_DIR)
+$(ZSTD_STATLIB): $(ZSTD_STATLIB_OBJ)
+  # Check for multithread flag at target execution time
+	$(if $(filter -DZSTD_MULTITHREAD,$(CPPFLAGS)),\
+    @echo compiling multi-threaded static library $(LIBVER),\
+    @echo compiling single-threaded static library $(LIBVER))
+	$(AR) $(ARFLAGS) $@ $^
+
+libzstd.a: $(ZSTD_STATLIB)
+	cp -f $< $@
+
+endif
+
+ifneq (,$(filter Windows%,$(TARGET_SYSTEM)))
+
+LIBZSTD = dll/libzstd.dll
+$(LIBZSTD): $(ZSTD_FILES)
 	@echo compiling dynamic library $(LIBVER)
-	@$(CC) $(FLAGS) -shared $^ -fPIC $(SONAME_FLAGS) -o $@.$(SHARED_EXT_VER)
-	@echo creating versioned links
-	@ln -sf $@.$(SHARED_EXT_VER) $@.$(SHARED_EXT_MAJOR)
-	@ln -sf $@.$(SHARED_EXT_VER) $@.$(SHARED_EXT)
+	$(CC) $(FLAGS) -DZSTD_DLL_EXPORT=1 -Wl,--out-implib,dll/libzstd.dll.a -shared $^ -o $@
 
+else  # not Windows
+
+LIBZSTD = libzstd.$(SHARED_EXT_VER)
+.PHONY: $(LIBZSTD)  # must be run every time
+$(LIBZSTD): CPPFLAGS += $(CPPFLAGS_DYNLIB)
+$(LIBZSTD): CFLAGS   += -fPIC -fvisibility=hidden
+$(LIBZSTD): LDFLAGS  += -shared $(LDFLAGS_DYNLIB)
+
+ifndef BUILD_DIR
+# determine BUILD_DIR from compilation flags
+
+$(LIBZSTD):
+	$(SET_CACHE_DIRECTORY)
+
+else
+# BUILD_DIR is defined
+
+ZSTD_DYNLIB_DIR := $(BUILD_DIR)/dynamic
+ZSTD_DYNLIB := $(ZSTD_DYNLIB_DIR)/$(LIBZSTD)
+ZSTD_DYNLIB_OBJ := $(addprefix $(ZSTD_DYNLIB_DIR)/,$(ZSTD_LOCAL_OBJ))
+
+$(ZSTD_DYNLIB): | $(ZSTD_DYNLIB_DIR)
+$(ZSTD_DYNLIB): $(ZSTD_DYNLIB_OBJ)
+# Check for multithread flag at target execution time
+	$(if $(filter -DZSTD_MULTITHREAD,$(CPPFLAGS)),\
+    @echo compiling multi-threaded dynamic library $(LIBVER),\
+    @echo compiling single-threaded dynamic library $(LIBVER))
+	$(CC) $(FLAGS) $^ $(LDFLAGS) $(SONAME_FLAGS) -o $@
+	@echo creating versioned links
+	ln -sf $@ libzstd.$(SHARED_EXT_MAJOR)
+	ln -sf $@ libzstd.$(SHARED_EXT)
+
+$(LIBZSTD): $(ZSTD_DYNLIB)
+	cp -f $< $@
+
+endif  # ifndef BUILD_DIR
+endif  # if windows
+
+.PHONY: libzstd
+libzstd : $(LIBZSTD)
+
+.PHONY: lib
+lib : libzstd.a libzstd
+
+
+# note : do not define lib-mt or lib-release as .PHONY
+# make does not consider implicit pattern rule for .PHONY target
+
+%-mt : CPPFLAGS_DYNLIB  := -DZSTD_MULTITHREAD
+%-mt : CPPFLAGS_STATLIB := -DZSTD_MULTITHREAD
+%-mt : LDFLAGS_DYNLIB   := -pthread
+%-mt : %
+	@echo multi-threaded build completed
+
+%-nomt : CPPFLAGS_DYNLIB  :=
+%-nomt : LDFLAGS_DYNLIB   :=
+%-nomt : CPPFLAGS_STATLIB :=
+%-nomt : %
+	@echo single-threaded build completed
+
+%-release : DEBUGFLAGS :=
+%-release : %
+	@echo release build completed
+
+
+# Generate .h dependencies automatically
+
+DEPFLAGS = -MT $@ -MMD -MP -MF
+
+$(ZSTD_DYNLIB_DIR)/%.o : %.c $(ZSTD_DYNLIB_DIR)/%.d | $(ZSTD_DYNLIB_DIR)
+	@echo CC $@
+	$(COMPILE.c) $(DEPFLAGS) $(ZSTD_DYNLIB_DIR)/$*.d $(OUTPUT_OPTION) $<
+
+$(ZSTD_STATLIB_DIR)/%.o : %.c $(ZSTD_STATLIB_DIR)/%.d | $(ZSTD_STATLIB_DIR)
+	@echo CC $@
+	$(COMPILE.c) $(DEPFLAGS) $(ZSTD_STATLIB_DIR)/$*.d $(OUTPUT_OPTION) $<
+
+$(ZSTD_DYNLIB_DIR)/%.o : %.S | $(ZSTD_DYNLIB_DIR)
+	@echo AS $@
+	$(COMPILE.S) $(OUTPUT_OPTION) $<
+
+$(ZSTD_STATLIB_DIR)/%.o : %.S | $(ZSTD_STATLIB_DIR)
+	@echo AS $@
+	$(COMPILE.S) $(OUTPUT_OPTION) $<
+
+MKDIR ?= mkdir
+$(BUILD_DIR) $(ZSTD_DYNLIB_DIR) $(ZSTD_STATLIB_DIR):
+	$(MKDIR) -p $@
+
+DEPFILES := $(ZSTD_DYNLIB_OBJ:.o=.d) $(ZSTD_STATLIB_OBJ:.o=.d)
+$(DEPFILES):
+
+include $(wildcard $(DEPFILES))
+
+
+# Special case : building library in single-thread mode _and_ without zstdmt_compress.c
+ZSTDMT_FILES = compress/zstdmt_compress.c
+ZSTD_NOMT_FILES = $(filter-out $(ZSTDMT_FILES),$(ZSTD_FILES))
+libzstd-nomt: CFLAGS += -fPIC -fvisibility=hidden
+libzstd-nomt: LDFLAGS += -shared
+libzstd-nomt: $(ZSTD_NOMT_FILES)
+	@echo compiling single-thread dynamic library $(LIBVER)
+	@echo files : $(ZSTD_NOMT_FILES)
+	$(CC) $(FLAGS) $^ $(LDFLAGS) $(SONAME_FLAGS) -o $@
+
+.PHONY: clean
 clean:
-	@rm -f core *.o *.a *.gcda *.$(SHARED_EXT) *.$(SHARED_EXT).* libzstd.pc
-	@rm -f decompress/*.o
+	$(RM) -r *.dSYM   # macOS-specific
+	$(RM) core *.o *.a *.gcda *.$(SHARED_EXT) *.$(SHARED_EXT).* libzstd.pc
+	$(RM) dll/libzstd.dll dll/libzstd.lib libzstd-nomt*
+	$(RM) -r obj/*
 	@echo Cleaning library completed
 
-#------------------------------------------------------------------------
-#make install is validated only for Linux, OSX, kFreeBSD, Hurd and some BSD targets
-ifneq (,$(filter $(shell uname),Linux Darwin GNU/kFreeBSD GNU FreeBSD DragonFly NetBSD))
+#-----------------------------------------------------------------------------
+# make install is validated only for below listed environments
+#-----------------------------------------------------------------------------
+ifneq (,$(filter $(UNAME),Linux Darwin GNU/kFreeBSD GNU OpenBSD FreeBSD NetBSD DragonFly SunOS Haiku AIX))
 
-libzstd.pc:
+lib: libzstd.pc
+
+HAS_EXPLICIT_EXEC_PREFIX := $(if $(or $(EXEC_PREFIX),$(exec_prefix)),1,)
+
+DESTDIR     ?=
+# directory variables : GNU conventions prefer lowercase
+# see https://www.gnu.org/prep/standards/html_node/Makefile-Conventions.html
+# support both lower and uppercase (BSD), use uppercase in script
+prefix      ?= /usr/local
+PREFIX      ?= $(prefix)
+exec_prefix ?= $(PREFIX)
+EXEC_PREFIX ?= $(exec_prefix)
+libdir      ?= $(EXEC_PREFIX)/lib
+LIBDIR      ?= $(libdir)
+includedir  ?= $(PREFIX)/include
+INCLUDEDIR  ?= $(includedir)
+
+PCINCDIR := $(patsubst $(PREFIX)%,%,$(INCLUDEDIR))
+PCLIBDIR := $(patsubst $(EXEC_PREFIX)%,%,$(LIBDIR))
+
+# If we successfully stripped off a prefix, we'll add a reference to the
+# relevant pc variable.
+PCINCPREFIX := $(if $(findstring $(INCLUDEDIR),$(PCINCDIR)),,$${prefix})
+PCLIBPREFIX := $(if $(findstring $(LIBDIR),$(PCLIBDIR)),,$${exec_prefix})
+
+# If no explicit EXEC_PREFIX was set by the caller, write it out as a reference
+# to PREFIX, rather than as a resolved value.
+PCEXEC_PREFIX := $(if $(HAS_EXPLICIT_EXEC_PREFIX),$(EXEC_PREFIX),$${prefix})
+
+ifneq (,$(filter $(UNAME),FreeBSD NetBSD DragonFly))
+  PKGCONFIGDIR ?= $(PREFIX)/libdata/pkgconfig
+else
+  PKGCONFIGDIR ?= $(LIBDIR)/pkgconfig
+endif
+
+ifneq (,$(filter $(UNAME),SunOS))
+  INSTALL ?= ginstall
+else
+  INSTALL ?= install
+endif
+
+INSTALL_PROGRAM ?= $(INSTALL)
+INSTALL_DATA    ?= $(INSTALL) -m 644
+
+
 libzstd.pc: libzstd.pc.in
 	@echo creating pkgconfig
-	@sed -e 's|@PREFIX@|$(PREFIX)|' \
-             -e 's|@LIBDIR@|$(LIBDIR)|' \
-             -e 's|@INCLUDEDIR@|$(INCLUDEDIR)|' \
-             -e 's|@VERSION@|$(VERSION)|' \
-             $< >$@
+	@sed $(SED_ERE_OPT) \
+	        -e 's|@PREFIX@|$(PREFIX)|' \
+	        -e 's|@EXEC_PREFIX@|$(PCEXEC_PREFIX)|' \
+	        -e 's|@INCLUDEDIR@|$(PCINCPREFIX)$(PCINCDIR)|' \
+	        -e 's|@LIBDIR@|$(PCLIBPREFIX)$(PCLIBDIR)|' \
+	        -e 's|@VERSION@|$(VERSION)|' \
+	        -e 's|@LIBS_PRIVATE@|$(LDFLAGS_DYNLIB)|' \
+	        $< >$@
 
-install: libzstd libzstd.pc
-	@install -d -m 755 $(DESTDIR)$(LIBDIR)/pkgconfig/ $(DESTDIR)$(INCLUDEDIR)/
-	@install -m 755 libzstd.$(SHARED_EXT_VER) $(DESTDIR)$(LIBDIR)/libzstd.$(SHARED_EXT_VER)
-	@cp -a libzstd.$(SHARED_EXT_MAJOR) $(DESTDIR)$(LIBDIR)
-	@cp -a libzstd.$(SHARED_EXT) $(DESTDIR)$(LIBDIR)
-	@cp -a libzstd.pc $(DESTDIR)$(LIBDIR)/pkgconfig/
-	@install -m 644 libzstd.a $(DESTDIR)$(LIBDIR)/libzstd.a
-	@install -m 644 zstd.h $(DESTDIR)$(INCLUDEDIR)/zstd.h
-	@install -m 644 common/zbuff.h $(DESTDIR)$(INCLUDEDIR)/zbuff.h
-	@install -m 644 dictBuilder/zdict.h $(DESTDIR)$(INCLUDEDIR)/zdict.h
+.PHONY: install
+install: install-pc install-static install-shared install-includes
 	@echo zstd static and shared library installed
 
+.PHONY: install-pc
+install-pc: libzstd.pc
+	[ -e $(DESTDIR)$(PKGCONFIGDIR) ] || $(INSTALL) -d -m 755 $(DESTDIR)$(PKGCONFIGDIR)/
+	$(INSTALL_DATA) libzstd.pc $(DESTDIR)$(PKGCONFIGDIR)/
+
+.PHONY: install-static
+install-static:
+	# only generate libzstd.a if it's not already present
+	[ -e libzstd.a ] || $(MAKE) libzstd.a-release
+	[ -e $(DESTDIR)$(LIBDIR) ] || $(INSTALL) -d -m 755 $(DESTDIR)$(LIBDIR)/
+	@echo Installing static library
+	$(INSTALL_DATA) libzstd.a $(DESTDIR)$(LIBDIR)
+
+.PHONY: install-shared
+install-shared:
+	# only generate libzstd.so if it's not already present
+	[ -e $(LIBZSTD) ] || $(MAKE) libzstd-release
+	[ -e $(DESTDIR)$(LIBDIR) ] || $(INSTALL) -d -m 755 $(DESTDIR)$(LIBDIR)/
+	@echo Installing shared library
+	$(INSTALL_PROGRAM) $(LIBZSTD) $(DESTDIR)$(LIBDIR)
+	ln -sf $(LIBZSTD) $(DESTDIR)$(LIBDIR)/libzstd.$(SHARED_EXT_MAJOR)
+	ln -sf $(LIBZSTD) $(DESTDIR)$(LIBDIR)/libzstd.$(SHARED_EXT)
+
+.PHONY: install-includes
+install-includes:
+	[ -e $(DESTDIR)$(INCLUDEDIR) ] || $(INSTALL) -d -m 755 $(DESTDIR)$(INCLUDEDIR)/
+	@echo Installing includes
+	$(INSTALL_DATA) zstd.h $(DESTDIR)$(INCLUDEDIR)
+	$(INSTALL_DATA) zstd_errors.h $(DESTDIR)$(INCLUDEDIR)
+	$(INSTALL_DATA) zdict.h $(DESTDIR)$(INCLUDEDIR)
+
+.PHONY: uninstall
 uninstall:
+	$(RM) $(DESTDIR)$(LIBDIR)/libzstd.a
 	$(RM) $(DESTDIR)$(LIBDIR)/libzstd.$(SHARED_EXT)
 	$(RM) $(DESTDIR)$(LIBDIR)/libzstd.$(SHARED_EXT_MAJOR)
-	$(RM) $(DESTDIR)$(LIBDIR)/pkgconfig/libzstd.pc
-	[ -x $(DESTDIR)$(LIBDIR)/libzstd.$(SHARED_EXT_VER) ] && $(RM) $(DESTDIR)$(LIBDIR)/libzstd.$(SHARED_EXT_VER)
-	@[ -f $(DESTDIR)$(LIBDIR)/libzstd.a ] && $(RM) $(DESTDIR)$(LIBDIR)/libzstd.a
-	@[ -f $(DESTDIR)$(INCLUDEDIR)/zstd.h ] && $(RM) $(DESTDIR)$(INCLUDEDIR)/zstd.h
-	@[ -f $(DESTDIR)$(INCLUDEDIR)/zbuff.h ] && $(RM) $(DESTDIR)$(INCLUDEDIR)/zbuff.h
-	@[ -f $(DESTDIR)$(INCLUDEDIR)/zdict.h ] && $(RM) $(DESTDIR)$(INCLUDEDIR)/zdict.h
+	$(RM) $(DESTDIR)$(LIBDIR)/$(LIBZSTD)
+	$(RM) $(DESTDIR)$(PKGCONFIGDIR)/libzstd.pc
+	$(RM) $(DESTDIR)$(INCLUDEDIR)/zstd.h
+	$(RM) $(DESTDIR)$(INCLUDEDIR)/zstd_errors.h
+	$(RM) $(DESTDIR)$(INCLUDEDIR)/zdict.h
 	@echo zstd libraries successfully uninstalled
 
 endif

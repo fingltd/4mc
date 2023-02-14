@@ -2,7 +2,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
      <parent>
-         <groupId>com.hadoop.fourmc</groupId>
+         <groupId>com.fing.fourmc</groupId>
          <artifactId>parent</artifactId>
          <version>1.0</version>
      </parent>
@@ -18,13 +18,13 @@
         <javac.target.version>1.7</javac.target.version-->
     </properties>
 
-    <groupId>com.hadoop.fourmc</groupId>
+    <groupId>com.fing.fourmc</groupId>
     <artifactId>hadoop-4mc</artifactId>
-    <version>2.0.0</version>
+    <version>3.0.0</version>
     <packaging>jar</packaging>
 
     <name>4mc</name>
-    <url>https://github.com/carlomedas/4mc</url>
+    <url>https://github.com/fingltd/4mc</url>
     <description>
         4mc - Four More Compression, ZSTD and LZ4 power unleashed in hadoop/spark/flink.
     </description>
@@ -38,14 +38,26 @@
     </licenses>
 
     <organization>
-        <name>Carlo Medas</name>
-        <url>-</url>
+        <name>Fing Ltd</name>
+        <url>https://fing.com</url>
     </organization>
 
     <developers>
         <developer>
             <id>carlo</id>
             <name>Carlo Medas</name>
+        </developer>
+        <developer>
+            <id>noodlesbad</id>
+            <name>Giuseppe Badoni</name>
+        </developer>
+        <developer>
+            <id>BuzzL</id>
+            <name>Tommaso Latini</name>
+        </developer>
+        <developer>
+            <id>Scip88</id>
+            <name>Francesco Scipioni</name>
         </developer>
     </developers>
 
@@ -75,7 +87,7 @@
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
-            <version>3.1</version>
+            <version>3.9</version>
         </dependency>
 
 
@@ -83,7 +95,7 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.8.2</version>
+            <version>4.13.1</version>
             <scope>test</scope>
         </dependency>
         <dependency>

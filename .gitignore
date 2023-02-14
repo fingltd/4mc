@@ -1,0 +1,11 @@
+# Ignore artifacts build by mvn
+java/*/target
+
+# Ignore native binaries
+native/4mc
+native/libhadoop-4mc.so.*
+/.idea/
+/java/examples/examples.iml
+/java/.idea/
+/java/hadoop-4mc/hadoop-4mc.iml
+/java/parent.iml

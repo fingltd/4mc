@@ -3,7 +3,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <parent>
-        <groupId>com.hadoop.fourmc</groupId>
+        <groupId>com.fing.fourmc</groupId>
         <artifactId>parent</artifactId>
         <version>1.0</version>
     </parent>
@@ -12,29 +12,33 @@
     <artifactId>examples</artifactId>
     <packaging>jar</packaging>
 
+    <properties>
+        <hadoop.version>2.6.0</hadoop.version>
+    </properties>
+
     <dependencies>
 
         <!-- 4mc -->
 
         <dependency>
-            <groupId>com.hadoop.fourmc</groupId>
+            <groupId>com.fing.fourmc</groupId>
             <artifactId>hadoop-4mc</artifactId>
-            <version>2.0.0</version>
+            <version>3.0.0</version>
         </dependency>
 
         <!-- hadoop 2.6 / Elephant-Bird / spark 2.0.0 / protobuf deps -->
 
         <dependency>
             <groupId>org.apache.spark</groupId>
-            <artifactId>spark-core_2.10</artifactId>
-            <version>2.0.0</version>
+            <artifactId>spark-core_2.12</artifactId>
+            <version>2.4.3</version>
             <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-common</artifactId>
-            <version>2.6.0</version>
+            <version>${hadoop.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.slf4j</groupId>
@@ -49,7 +53,7 @@
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-mapreduce-client-app</artifactId>
-            <version>2.6.0</version>
+            <version>${hadoop.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.slf4j</groupId>
@@ -60,7 +64,7 @@
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-mapreduce-client-common</artifactId>
-            <version>2.6.0</version>
+            <version>${hadoop.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.slf4j</groupId>
@@ -75,7 +79,7 @@
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-mapreduce-client-jobclient</artifactId>
-            <version>2.6.0</version>
+            <version>${hadoop.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.slf4j</groupId>
@@ -91,7 +95,7 @@
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-hdfs</artifactId>
-            <version>2.6.0</version>
+            <version>${hadoop.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>log4j</groupId>
@@ -103,7 +107,7 @@
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-yarn-api</artifactId>
-            <version>2.6.2</version>
+            <version>${hadoop.version}</version>
         </dependency>
 
         <dependency>
@@ -123,7 +127,5 @@
             <artifactId>protobuf-java</artifactId>
             <version>2.5.0</version>
         </dependency>
-
-
     </dependencies>
 </project>

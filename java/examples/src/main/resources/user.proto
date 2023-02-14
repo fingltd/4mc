@@ -1,6 +1,6 @@
-package com.hadoop.fourmc.protobuf;
+package com.fing.fourmc.protobuf;
 
-option java_package = "com.hadoop.fourmc.protobuf";
+option java_package = "com.fing.fourmc.protobuf";
 option java_outer_classname = "USER";
 option optimize_for = SPEED;
 

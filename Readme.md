@@ -1,3 +1,4 @@
+#  [![Build Status](https://travis-ci.org/fingltd/4mc.svg?branch=master)](https://travis-ci.org/fingltd/4mc)
 # 4mc - Four More Compression
 
 ## About
@@ -49,8 +50,11 @@ you are not needing long-term storage.
 
 
 ## Releases and change history
-Releases with artifacts available at https://github.com/carlomedas/4mc/releases - Attached artifacts contain jar with embedded native library for Windows/Linux/MacOS. You can anyway compile JNI bindings for your own platform and override embedded ones.
-4mc CLI tool for all platforms is now available at https://github.com/carlomedas/4mc/tree/master/tool
+Releases with artifacts available at https://github.com/fingltd/4mc/releases - Attached artifacts contain jar with embedded native library for Windows/Linux/MacOS. You can anyway compile JNI bindings for your own platform and override embedded ones.
+4mc CLI tool for all platforms is now available at https://github.com/fingltd/4mc/tree/master/tool
+* **4mc 3.0.0** - Updated native libaries: LZ4 1.9.4 and ZSTD 1.5.2, package rename
+* **4mc 2.2.0** - Updated native libaries: LZ4 1.9.2 and ZSTD 1.4.4
+* **4mc 2.1.0** - Compatibility with newer Hadoop (2.7.x) and Spark (2.4.3)
 * **4mc 2.0.0** - 4mz to support ZSTD (zstandard https://github.com/facebook/zstd)
 * **4mc 1.4.0** - Native libraries are now embedded in jar, thus hadoop-4mc library can be used w/o manual configurations on Hadoop/Spark/Flink/etc
 * **4mc 1.3.0** - Introduced direct buffers pool, to cope with "java.lang.OufOfMemoryError: Direct Buffer Memory"
@@ -77,10 +81,10 @@ Enabling codecs has no difference from usual, i.e. by adding them to configurati
 			org.apache.hadoop.io.compress.GzipCodec,org.apache.hadoop.io.compress.DefaultCodec,org.apache.hadoop.io.compress.BZip2Codec,
 			com.hadoop.compression.lzo.LzoCodec,com.hadoop.compression.lzo.LzopCodec,
 			<!-- 4mc codecs -->
-			com.hadoop.compression.fourmc.Lz4Codec,com.hadoop.compression.fourmc.Lz4MediumCodec,com.hadoop.compression.fourmc.Lz4HighCodec,com.hadoop.compression.fourmc.Lz4UltraCodec,
-			com.hadoop.compression.fourmc.FourMcCodec,com.hadoop.compression.fourmc.FourMcMediumCodec,com.hadoop.compression.fourmc.FourMcHighCodec,com.hadoop.compression.fourmc.FourMcUltraCodec,
+			com.fing.compression.fourmc.Lz4Codec,com.fing.compression.fourmc.Lz4MediumCodec,com.fing.compression.fourmc.Lz4HighCodec,com.fing.compression.fourmc.Lz4UltraCodec,
+			com.fing.compression.fourmc.FourMcCodec,com.fing.compression.fourmc.FourMcMediumCodec,com.fing.compression.fourmc.FourMcHighCodec,com.fing.compression.fourmc.FourMcUltraCodec,
       <!-- 4mz codecs -->
-      com.hadoop.compression.fourmc.FourMzCodec,com.hadoop.compression.fourmc.FourMzMediumCodec,com.hadoop.compression.fourmc.FourMzHighCodec,com.hadoop.compression.fourmc.FourMzUltraCodec
+      com.fing.compression.fourmc.FourMzCodec,com.fing.compression.fourmc.FourMzMediumCodec,com.fing.compression.fourmc.FourMzHighCodec,com.fing.compression.fourmc.FourMzUltraCodec
 		</value>
     </property>
 ```
@@ -102,6 +106,37 @@ The maven module **examples** is a separate module providing several usage examp
 also with Spark. Flink examples will be added soon, but it's straightforward like Spark.
 As you can see in the examples, 4mc can be used with text input/output but also it can leverge **ElephantBird**
 framework to process protobuf encoded binary data.
+
+## PySpark Example
+
+Use `sc.newAPIHadoopFile` to load your data. This will leverage the splittable feature of 4mc and load your data into many partitions.
+
+```python
+filepath = 'gs://data/foo.4mc'
+
+# This will read the file and partition it as it loads
+data = sc.newAPIHadoopFile(
+    filepath
+,   'com.fing.mapreduce.FourMcTextInputFormat'
+,   'org.apache.hadoop.io.LongWritable'
+,   'org.apache.hadoop.io.Text'
+)
+data.getNumPartitions()
+# -> 24
+
+# This is what the RDD looks like after it's loaded
+data.take(1)
+# -> [(0, 'first line')]
+```
+
+You may use `sc.textFile` or any other method to load the data. However, the data will be loaded in one partition only.
+
+```python
+data = sc.textFile(filepath)
+data.getNumPartitions()
+# -> 1
+```
+
 
 ## How To Contribute
 

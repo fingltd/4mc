@@ -63,7 +63,14 @@ public class FourMcNativeCodeLoader {
     }
 
     private static String arch() {
-        return System.getProperty("os.arch");
+        OS os = os();
+        String arch = System.getProperty("os.arch");
+
+        if (os.name.equals("darwin") && arch.equals("aarch64")) {
+            return "arm64";
+        } else {
+            return arch;
+        }
     }
 
     private static OS os() {
